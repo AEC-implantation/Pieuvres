@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -9,7 +8,21 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;700&display=swap');
   :root{--bg:#ddeeff;--panel:#f0f7ff;--border:#aaccee;--accent:#f0a500;--accent2:#00c9a7;--text:#1a2a3a;--muted:#5577aa;--input-bg:#ffffff;--input-border:#99bbdd;--hdr:#b8d8f0}
-  *{box-sizing:border-box;margin:0;padding:0}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:flex-end;justify-content:center}
+  .modal-overlay.open{display:flex}
+  .modal-box{background:var(--panel);border-radius:16px 16px 0 0;width:100%;max-height:80vh;overflow-y:auto;padding:20px 16px 30px}
+  .modal-title{font-family:'IBM Plex Mono',monospace;font-size:.9rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px}
+  .project-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;margin-bottom:8px;background:var(--bg);border:1px solid var(--border);border-radius:6px}
+  .project-info{flex:1}
+  .project-name{font-size:.85rem;font-weight:600;color:var(--text)}
+  .project-date{font-size:.7rem;color:var(--muted);margin-top:2px}
+  .project-btns{display:flex;gap:6px}
+  .btn-load{background:var(--accent2);border:none;border-radius:4px;color:#0f1117;font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:700;padding:6px 12px;cursor:pointer}
+  .btn-del{background:transparent;border:1px solid #ff4d4d;border-radius:4px;color:#ff4d4d;font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:700;padding:6px 10px;cursor:pointer}
+  .btn-close-modal{width:100%;padding:12px;margin-top:10px;background:transparent;border:1px solid var(--input-border);border-radius:6px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.78rem;font-weight:700;cursor:pointer;text-transform:uppercase}
+  .no-projects{text-align:center;color:var(--muted);padding:20px;font-size:.82rem}
+  button,a,label,select,input{touch-action:manipulation}
   body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:20px 16px}
   header{display:flex;align-items:center;gap:16px;margin-bottom:24px;border-bottom:2px solid var(--accent);padding-bottom:12px}
   header h1{font-family:'IBM Plex Mono',monospace;font-size:1.2rem;font-weight:700;color:var(--accent);letter-spacing:.05em;text-transform:uppercase}
@@ -163,7 +176,7 @@
   <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:20px 0">
     <button onclick="nouveauC15()" style="background:transparent;border:1px solid var(--input-border);border-radius:4px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:10px 18px;cursor:pointer">&#10005; Nouvelle configuration</button>
     <button onclick="sauvegarderC15()" style="background:transparent;border:1px solid var(--input-border);border-radius:4px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:10px 18px;cursor:pointer">&#128190; Sauvegarder</button>
-    <label style="background:transparent;border:1px solid var(--input-border);border-radius:4px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:10px 18px;cursor:pointer">&#128193; Charger<input type="file" id="inp_load_c15" accept=".json" style="display:none" onchange="chargerC15(event)"></label>
+    <button onclick="ouvrirListeEtudes()" style="background:transparent;border:1px solid var(--input-border);border-radius:4px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:10px 18px;cursor:pointer">&#128193; Mes etudes</button>
     <button onclick="imprimerPDF()" style="background:#5577aa;border:none;border-radius:4px;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 20px;cursor:pointer">&#128438; PDF</button>
     <button onclick="envoyerC15()" style="background:var(--accent);border:none;border-radius:4px;color:#0f1117;font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 24px;cursor:pointer">&#9993; Envoyer le devis</button>
   </div>
@@ -372,47 +385,105 @@ function toggleTarifsC15(){
   btn.textContent=open?'- Masquer':'+ Afficher';
 }
 
-function sauvegarderC15(){
-  var client=document.getElementById('p_client')?document.getElementById('p_client').value.trim():'chantier';
-  var date=new Date().toISOString().slice(0,10);
-  var state={client:client};
-  var inputs=document.querySelectorAll('.piece input, .params-bar input, .infos-bar input, #panel_tarifs_c15 input');
+function collectState(){
+  var state={};
+  var inputs=document.querySelectorAll('.piece input, .params-bar input, .infos-bar input');
   for(var i=0;i<inputs.length;i++){
     if(inputs[i].id) state[inputs[i].id]=inputs[i].value;
   }
-  state.nb_ch=document.getElementById('nb_ch').value;
-  state.nb_sdb=document.getElementById('nb_sdb').value;
-  state.p_etages=document.getElementById('p_etages').value;
-  var blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
-  var a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='c15_'+(client||'chantier').replace(/[^a-zA-Z0-9_-]/g,'_')+'_'+date+'.json';
-  a.click();
-  URL.revokeObjectURL(a.href);
+  var sels=document.querySelectorAll('.params-bar select, .infos-bar select, #p_etages');
+  for(var i=0;i<sels.length;i++){
+    if(sels[i].id) state[sels[i].id]=sels[i].value;
+  }
+  var commEl=document.getElementById('commentaires');
+  if(commEl) state['commentaires']=commEl.value;
+  return state;
 }
 
-function chargerC15(event){
-  var file=event.target.files[0];
-  if(!file) return;
-  var reader=new FileReader();
-  reader.onload=function(e){
-    try{
-      var state=JSON.parse(e.target.result);
-      if(state.nb_ch) document.getElementById('nb_ch').value=state.nb_ch;
-      if(state.nb_sdb) document.getElementById('nb_sdb').value=state.nb_sdb;
-      buildAll();
-      setTimeout(function(){
-        for(var id in state){
-          var el=document.getElementById(id);
-          if(el && el.tagName==='INPUT') el.value=state[id];
-          if(el && el.tagName==='SELECT') el.value=state[id];
-        }
-        recalc();
-      }, 200);
-    }catch(err){alert('Fichier invalide.');}
-  };
-  reader.readAsText(file);
-  event.target.value='';
+function applyState(state){
+  if(state.nb_ch) document.getElementById('nb_ch').value=state.nb_ch;
+  if(state.nb_sdb) document.getElementById('nb_sdb').value=state.nb_sdb;
+  if(state.nb_wc) document.getElementById('nb_wc').value=state.nb_wc;
+  if(state.opt_garage) document.getElementById('opt_garage').value=state.opt_garage;
+  if(state.opt_cellier) document.getElementById('opt_cellier').value=state.opt_cellier;
+  if(state.opt_bureau) document.getElementById('opt_bureau').value=state.opt_bureau;
+  buildAll();
+  updateBoitesDistri();
+  setTimeout(function(){
+    for(var id in state){
+      var el=document.getElementById(id);
+      if(el && el.tagName==='INPUT') el.value=state[id];
+      if(el && el.tagName==='SELECT') el.value=state[id];
+    }
+    var commEl=document.getElementById('commentaires');
+    if(commEl && state.commentaires) commEl.value=state.commentaires;
+    recalc();
+  }, 200);
+}
+
+function sauvegarderC15(){
+  var clientEl=document.getElementById('p_client');
+  var client=clientEl?(clientEl.value.trim()):'';
+  var nom=prompt('Nom de cette etude :', client||'Etude '+new Date().toLocaleDateString('fr-FR'));
+  if(!nom) return;
+  var state=collectState();
+  state._nom=nom;
+  state._date=new Date().toLocaleDateString('fr-FR');
+  try{
+    var raw=localStorage.getItem('c15_distri_etudes')||'{}';
+    var etudes=JSON.parse(raw);
+    etudes[nom]=state;
+    localStorage.setItem('c15_distri_etudes', JSON.stringify(etudes));
+    alert('Etude "'+nom+'" sauvegardee.');
+  }catch(e){ alert('Erreur de sauvegarde.'); }
+}
+
+function chargerC15(event){ /* kept for compat */ }
+
+
+
+function ouvrirListeEtudes(){
+  try{
+    var raw=localStorage.getItem('c15_distri_etudes')||'{}';
+    var etudes=JSON.parse(raw);
+    var noms=Object.keys(etudes);
+    var liste=document.getElementById('liste-etudes');
+    if(!liste) return;
+    if(noms.length===0){
+      liste.innerHTML='<div class="no-projects">Aucune etude sauvegardee.</div>';
+    } else {
+      liste.innerHTML='';
+      for(var i=0;i<noms.length;i++){
+        (function(nom){
+          var item=document.createElement('div');
+          item.className='project-item';
+          var info=document.createElement('div'); info.className='project-info';
+          var n=document.createElement('div'); n.className='project-name'; n.textContent=nom;
+          var d=document.createElement('div'); d.className='project-date'; d.textContent=etudes[nom]._date||'';
+          info.appendChild(n); info.appendChild(d);
+          var btns=document.createElement('div'); btns.className='project-btns';
+          var bl=document.createElement('button'); bl.className='btn-load'; bl.textContent='Charger';
+          bl.onclick=function(){ fermerModal(); applyState(etudes[nom]); };
+          var bd=document.createElement('button'); bd.className='btn-del'; bd.textContent='X';
+          bd.onclick=function(){
+            if(!confirm('Supprimer "'+nom+'" ?')) return;
+            delete etudes[nom];
+            localStorage.setItem('c15_distri_etudes',JSON.stringify(etudes));
+            ouvrirListeEtudes();
+          };
+          btns.appendChild(bl); btns.appendChild(bd);
+          item.appendChild(info); item.appendChild(btns);
+          liste.appendChild(item);
+        })(noms[i]);
+      }
+    }
+    document.getElementById('modal-etudes').classList.add('open');
+  }catch(e){ alert('Erreur: '+e.message); }
+}
+
+function fermerModal(){
+  var m=document.getElementById('modal-etudes');
+  if(m) m.classList.remove('open');
 }
 
 function nouveauC15(){
@@ -853,6 +924,13 @@ function findLine(lid){
 buildAll();
 updateBoitesDistri();
 </script>
+
+<div class="modal-overlay" id="modal-etudes" onclick="fermerModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-title">📂 Mes études sauvegardées</div>
+    <div id="liste-etudes"></div>
+    <button class="btn-close-modal" onclick="fermerModal()">Fermer</button>
+  </div>
+</div>
 </body>
 </html>
-
