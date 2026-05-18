@@ -110,10 +110,11 @@
   <div class="infos-bar">
     <span class="p-label">Client <span style="color:var(--accent)">*</span></span>
     <input type="text" id="p_client" placeholder="Nom obligatoire" style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:.85rem;padding:4px 8px;outline:none;width:160px">
-    <span class="p-label">Surface (m2)</span>
-    <input type="number" class="pi" id="p_surface" value="100" min="1" step="1" style="width:70px">
+    <span class="p-label">Surface totale (m2)</span>
+    <input type="number" class="pi" id="p_surface" value="100" min="1" step="1" oninput="updateBoitesDistri()" onchange="updateBoitesDistri()" style="width:70px">
     <span class="p-label">Nb etages</span>
     <select id="p_etages" onchange="updateBoitesDistri()" style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:600;padding:4px 8px;outline:none">
+      <option value="studio">Studio</option>
       <option value="plain">Plain-pied</option>
       <option value="1">1 etage</option>
       <option value="2">2 etages</option>
@@ -228,9 +229,9 @@ var PIECES = [
     {id:'pdr',   label:'Porte de garage',          min:0, nf:4, pf:'fil25', pi:'ict20', L:20}
   ]},
   {key:'exterieur', label:'Exterieur', lignes:[
-    {id:'p20',   label:'Prise 16A ext U1000',     min:1, nf:1, pf:'u1000_25', pi:'ict20', L:15},
-    {id:'dcl',   label:'DCL ext U1000',           min:1, nf:1, pf:'u1000_15', pi:'ict20', L:10},
-    {id:'bp',    label:'Simple allumage',         min:1, nf:2, pf:'fil15',    pi:'ict20', L:12}
+    {id:'p20',   label:'Prise 16A ext U1000',     min:0, nf:1, pf:'u1000_25', pi:'ict20', L:15},
+    {id:'dcl',   label:'DCL ext U1000',           min:0, nf:1, pf:'u1000_15', pi:'ict20', L:10},
+    {id:'bp',    label:'Simple allumage',         min:0, nf:2, pf:'fil15',    pi:'ict20', L:12}
   ]},
   {key:'cellier', label:'Cellier', lignes:[
     {id:'p20',   label:'Prises 16A 2P+T',         min:2, nf:3, pf:'fil25', pi:'ict20', L:15},
@@ -250,7 +251,7 @@ var PIECES = [
 
 // Pièce Divers — éléments à prix fixe
 var DIVERS = [
-  {id:'bpav', label:'Boite pavillonaire + wago', min:1, fixedPU:89, nf:0, pf:null, pi:null, L:0},
+  {id:'bpav', label:'Boite pavillonnaire + wago', min:1, fixedPU:89, nf:0, pf:null, pi:null, L:0},
   {id:'prep', label:'Prepa transport + materiel', min:1, fixedPU:45, nf:0, pf:null, pi:null, L:0, noLng:true, hidden:true, fixedQty:1},
   {id:'ech',  label:'Echange client / plans',    min:2, fixedPU:45, nf:0, pf:null, pi:null, L:0, noLng:true, hidden:true, fixedQty:2},
   {id:'trsp', label:'Frais de transport',          min:1, fixedPU:150, nf:0, pf:null, pi:null, L:0, noLng:true, freeTotal:true, fixedQty:1, hidden:true}
@@ -739,9 +740,15 @@ function recalcMarge(){
 }
 
 function updateBoitesDistri(){
-  var map={'plain':3,'1':6,'2':9,'3':12,'4plus':15};
-  var etEl = document.getElementById('p_etages');
-  var nb = map[etEl ? etEl.value : 'plain'] || 3;
+  var etEl     = document.getElementById('p_etages');
+  var surfaceEl= document.getElementById('p_surface');
+  var etage    = etEl ? etEl.value : 'plain';
+  var surface  = parseFloat(surfaceEl ? surfaceEl.value : 0)||0;
+
+  // Studio : 1 boite fixe
+  // Autres : surface totale / 35, arrondi superieur
+  var nb = (etage==='studio') ? 1 : (surface > 0 ? Math.ceil(surface / 35) : 1);
+
   var minEl = document.getElementById('divers_bpav_min');
   var qEl   = document.getElementById('divers_bpav_q');
   if(minEl){ minEl.value = nb; }
@@ -934,3 +941,4 @@ updateBoitesDistri();
 </div>
 </body>
 </html>
+
