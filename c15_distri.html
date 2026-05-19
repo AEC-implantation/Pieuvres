@@ -23,6 +23,7 @@
   .btn-close-modal{width:100%;padding:12px;margin-top:10px;background:transparent;border:1px solid var(--input-border);border-radius:6px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.78rem;font-weight:700;cursor:pointer;text-transform:uppercase}
   .no-projects{text-align:center;color:var(--muted);padding:20px;font-size:.82rem}
   button,a,label,select,input{touch-action:manipulation}
+  input.pi-spin{width:58px;text-align:right;background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:"IBM Plex Mono",monospace;font-size:.82rem;font-weight:600;padding:3px 4px;outline:none;-webkit-appearance:auto!important;appearance:auto!important;-moz-appearance:auto!important}
   body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:20px 16px}
   header{display:flex;align-items:center;gap:16px;margin-bottom:24px;border-bottom:2px solid var(--accent);padding-bottom:12px}
   header h1{font-family:'IBM Plex Mono',monospace;font-size:1.2rem;font-weight:700;color:var(--accent);letter-spacing:.05em;text-transform:uppercase}
@@ -126,26 +127,17 @@
   <!-- Paramètres globaux -->
   <div class="params-bar">
     <span class="p-label">Nb chambres</span>
-    <input type="number" class="pi" id="nb_ch" value="2" min="0" max="10" step="1" style="width:58px;-webkit-appearance:auto;appearance:auto;-moz-appearance:auto" oninput="buildAll()" onchange="buildAll()">
+    <input type="number" id="nb_ch" class="pi-spin" value="2" min="0" max="10" step="1" style="width:58px;-webkit-appearance:auto;appearance:auto;-moz-appearance:auto" oninput="buildAll()" onchange="buildAll()">
     <span class="p-label">Nb SDB</span>
-    <input type="number" class="pi" id="nb_sdb" value="1" min="0" max="5" step="1" style="width:58px;-webkit-appearance:auto;appearance:auto;-moz-appearance:auto" oninput="buildAll()" onchange="buildAll()">
+    <input type="number" id="nb_sdb" class="pi-spin" value="1" min="0" max="5" step="1" style="width:58px;-webkit-appearance:auto;appearance:auto;-moz-appearance:auto" oninput="buildAll()" onchange="buildAll()">
     <span class="p-label">Nb WC</span>
-    <input type="number" class="pi" id="nb_wc" value="1" min="0" max="5" step="1" style="width:58px;-webkit-appearance:auto;appearance:auto;-moz-appearance:auto" oninput="buildAll()" onchange="buildAll()">
-    <span class="p-label">Garage</span>
-    <select id="opt_garage" style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:600;padding:3px 8px;outline:none" onchange="buildAll()">
-      <option value="oui">Oui</option>
-      <option value="non">Non</option>
-    </select>
-    <span class="p-label">Cellier</span>
-    <select id="opt_cellier" style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:600;padding:3px 8px;outline:none" onchange="buildAll()">
-      <option value="non">Non</option>
-      <option value="oui">Oui</option>
-    </select>
-    <span class="p-label">Bureau</span>
-    <select id="opt_bureau" style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:600;padding:3px 8px;outline:none" onchange="buildAll()">
-      <option value="non">Non</option>
-      <option value="oui">Oui</option>
-    </select>
+    <input type="number" id="nb_wc" class="pi-spin" value="1" min="0" max="5" step="1" style="width:58px;-webkit-appearance:auto;appearance:auto;-moz-appearance:auto" oninput="buildAll()" onchange="buildAll()">
+    <span class="p-label">Nb Garage</span>
+    <input type="number" id="nb_garage" class="pi-spin" value="1" min="0" max="3" step="1" style="width:58px;-webkit-appearance:auto;appearance:auto;-moz-appearance:auto" oninput="buildAll()" onchange="buildAll()">
+    <span class="p-label">Nb Cellier</span>
+    <input type="number" id="nb_cellier" class="pi-spin" value="0" min="0" max="3" step="1" style="width:58px;-webkit-appearance:auto;appearance:auto;-moz-appearance:auto" oninput="buildAll()" onchange="buildAll()">
+    <span class="p-label">Nb Bureau</span>
+    <input type="number" id="nb_bureau" class="pi-spin" value="0" min="0" max="3" step="1" style="width:58px;-webkit-appearance:auto;appearance:auto;-moz-appearance:auto" oninput="buildAll()" onchange="buildAll()">
     <input type="hidden" id="p_heure" value="45"><input type="hidden" id="p_coef" value="1.35">
   </div>
 
@@ -200,7 +192,7 @@ var PIECES = [
     {id:'vv',    label:'Va-et-vient',            min:1, nf:3, pf:'fil15',   pi:'ict20', L:12},
     {id:'bp',    label:'Simple allumage / BP',   min:0, nf:2, pf:'fil15',   pi:'ict20', L:12},
     {id:'tv',    label:'Prise TV multimedia',    min:0, nf:1, pf:'grad3tv', pi:'ict20', L:15},
-    {id:'rj',    label:'Prise RJ45 (reseau)',    min:1, nf:1, pf:'coax',    pi:'ict20', L:15},
+    {id:'rj',    label:'Prise RJ45 (reseau)',    min:0, nf:1, pf:'coax',    pi:'ict20', L:15},
     {id:'vr',    label:'Volet roulant',          min:0, nf:3, pf:'fil15',   pi:'ict20', L:20},
     {id:'chauf', label:'Chauffage electrique',   min:0, nf:4, pf:'fil15',   pi:'ict20', L:20}
   ]},
@@ -237,11 +229,11 @@ var PIECES = [
     {id:'p20',   label:'Prises 16A 2P+T',         min:2, nf:3, pf:'fil25', pi:'ict20', L:15},
     {id:'dcl',   label:'DCL plafond',              min:1, nf:3, pf:'fil15', pi:'ict25', L:8},
     {id:'bp',    label:'Simple allumage',          min:1, nf:2, pf:'fil15', pi:'ict20', L:8},
-    {id:'lave',  label:'Lave-linge 20A',           min:1, nf:3, pf:'fil25', pi:'ict20', L:20}
+    {id:'lave',  label:'Lave-linge 20A',           min:0, nf:3, pf:'fil25', pi:'ict20', L:20}
   ]},
   {key:'bureau', label:'Bureau', lignes:[
     {id:'p20',   label:'Prises 16A 2P+T',         min:4, nf:3, pf:'fil25', pi:'ict20', L:15},
-    {id:'rj',    label:'Prise RJ45 (reseau)',      min:2, nf:1, pf:'coax',  pi:'ict20', L:15},
+    {id:'rj',    label:'Prise RJ45 (reseau)',      min:0, nf:1, pf:'coax',  pi:'ict20', L:15},
     {id:'dcl',   label:'DCL plafond',              min:1, nf:3, pf:'fil15', pi:'ict25', L:10},
     {id:'bp',    label:'Simple allumage',          min:1, nf:2, pf:'fil15', pi:'ict20', L:10},
     {id:'vr',    label:'Volet roulant',            min:0, nf:3, pf:'fil15', pi:'ict20', L:20},
@@ -275,7 +267,7 @@ var WC_LIGNES = [
 var CHAMBRE = [
   {id:'p20',   label:'Prises 16A 2P+T',           min:3, nf:3, pf:'fil25', pi:'ict20', L:15},
   {id:'dcl',   label:'DCL plafond',               min:1, nf:3, pf:'fil15', pi:'ict25', L:10},
-  {id:'rj',    label:'Prise RJ45 (reseau)',        min:1, nf:1, pf:'coax',  pi:'ict20', L:15},
+  {id:'rj',    label:'Prise RJ45 (reseau)',        min:0, nf:1, pf:'coax',  pi:'ict20', L:15},
   {id:'vv',    label:'Va-et-vient',               min:1, nf:3, pf:'fil15', pi:'ict20', L:12},
   {id:'bp',    label:'Simple allumage / BP',      min:0, nf:2, pf:'fil15', pi:'ict20', L:10},
   {id:'vr',    label:'Volet roulant',             min:0, nf:3, pf:'fil15', pi:'ict20', L:20},
@@ -764,17 +756,18 @@ function buildAll(){
   cont.innerHTML = '';
 
   // Pièces fixes conditionnelles
-  var optGarage  = document.getElementById('opt_garage')  ? document.getElementById('opt_garage').value  : 'oui';
-  var optCellier = document.getElementById('opt_cellier') ? document.getElementById('opt_cellier').value : 'non';
-  var optBureau  = document.getElementById('opt_bureau')  ? document.getElementById('opt_bureau').value  : 'non';
+  var nbGarage  = parseInt(document.getElementById('nb_garage')  ? document.getElementById('nb_garage').value  : 1)||0;
+  var nbCellier = parseInt(document.getElementById('nb_cellier') ? document.getElementById('nb_cellier').value : 0)||0;
+  var nbBureau  = parseInt(document.getElementById('nb_bureau')  ? document.getElementById('nb_bureau').value  : 0)||0;
 
   for(var i=0; i<PIECES.length; i++){
     var key = PIECES[i].key;
-    if(key==='garage'  && optGarage==='non')  continue;
-    if(key==='cellier' && optCellier==='non') continue;
-    if(key==='bureau'  && optBureau==='non')  continue;
+    if(key==='garage'  || key==='cellier' || key==='bureau') continue;
     cont.appendChild(makePiece(key, PIECES[i].label, PIECES[i].lignes));
   }
+  for(var i=0; i<nbGarage;  i++) cont.appendChild(makePiece('garage'+(nbGarage>1?i+1:''),  nbGarage>1?'Garage '+(i+1):'Garage',   PIECES.find(function(p){return p.key==='garage';}).lignes));
+  for(var i=0; i<nbCellier; i++) cont.appendChild(makePiece('cellier'+(nbCellier>1?i+1:''), nbCellier>1?'Cellier '+(i+1):'Cellier', PIECES.find(function(p){return p.key==='cellier';}).lignes));
+  for(var i=0; i<nbBureau;  i++) cont.appendChild(makePiece('bureau'+(nbBureau>1?i+1:''),   nbBureau>1?'Bureau '+(i+1):'Bureau',   PIECES.find(function(p){return p.key==='bureau';}).lignes));
 
   // WC multiples
   var nbWc = parseInt(document.getElementById('nb_wc') ? document.getElementById('nb_wc').value : 1)||0;
@@ -941,4 +934,5 @@ updateBoitesDistri();
 </div>
 </body>
 </html>
+
 
