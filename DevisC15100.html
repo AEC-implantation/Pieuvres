@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -9,6 +10,7 @@
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;700&display=swap');
   :root{--bg:#ddeeff;--panel:#f0f7ff;--border:#aaccee;--accent:#f0a500;--accent2:#00c9a7;--text:#1a2a3a;--muted:#5577aa;--input-bg:#ffffff;--input-border:#99bbdd;--hdr:#b8d8f0}
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  #print-header{display:none}
   .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:flex-end;justify-content:center}
   .modal-overlay.open{display:flex}
   .modal-box{background:var(--panel);border-radius:16px 16px 0 0;width:100%;max-height:80vh;overflow-y:auto;padding:20px 16px 30px}
@@ -62,6 +64,21 @@
   /* Recap */
   .recap{background:var(--panel);border:1px solid var(--border);border-radius:6px;margin-top:20px;overflow:hidden}
   .recap .rh{background:var(--hdr);padding:9px 14px;display:flex;align-items:center;gap:8px}
+  .extra-section{background:var(--panel);border:1px solid var(--border);border-radius:6px;margin-bottom:12px;overflow:hidden}
+  .extra-hdr{background:var(--hdr);padding:9px 14px;display:flex;align-items:center;gap:8px}
+  .extra-hdr span.tag{font-family:'IBM Plex Mono',monospace;font-size:.6rem;font-weight:700;color:var(--bg);background:var(--accent);padding:2px 7px;border-radius:2px}
+  .extra-hdr h3{font-size:.75rem;font-weight:500;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+  .extra-body{padding:10px 14px}
+  .extra-row{display:grid;grid-template-columns:2fr 80px 100px 100px;gap:8px;align-items:center;margin-bottom:8px}
+  .extra-row:last-child{margin-bottom:0}
+  .extra-lbl{font-size:.7rem;color:var(--muted);text-align:center}
+  .extra-header-row{display:grid;grid-template-columns:2fr 80px 100px 100px;gap:8px;margin-bottom:6px}
+  input.extra-inp{background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:.8rem;padding:4px 7px;outline:none;width:100%}
+  input.extra-inp:focus{border-color:var(--accent)}
+  input.extra-num{background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.8rem;font-weight:600;padding:4px 7px;outline:none;width:100%;text-align:right;-moz-appearance:textfield}
+  input.extra-num::-webkit-inner-spin-button{-webkit-appearance:none}
+  input.extra-num:focus{border-color:var(--accent)}
+  .extra-vente{text-align:right;font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:700;color:var(--accent2)}
   .recap .rh span{font-family:'IBM Plex Mono',monospace;font-size:.6rem;font-weight:700;color:var(--bg);background:var(--accent2);padding:2px 7px;border-radius:2px}
   .recap .rh h2{font-size:.75rem;font-weight:500;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
   .rrow{display:flex;justify-content:space-between;align-items:center;padding:9px 16px;border-bottom:1px solid rgba(170,204,238,.4)}
@@ -84,13 +101,45 @@
   /* Infos chantier */
   .infos-bar{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:12px 16px;margin-bottom:16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
   @media print {
-    body{ background:white; padding:10px; }
-    .params-bar,.infos-bar,.piece-hdr{ background:#e8f0f8 !important; -webkit-print-color-adjust:exact; }
-    .rrow.tot{ background:#fff8e8 !important; -webkit-print-color-adjust:exact; }
-    button,label[for],a.back{ display:none !important; }
-    .recap{ page-break-inside:avoid; }
-    .piece{ page-break-inside:avoid; margin-bottom:8px; }
-  }
+    /* Reset */
+    body{ background:white; padding:8px 12px; font-family:Arial,sans-serif; font-size:9pt; }
+
+    /* Cacher tout par défaut */
+    .params-bar, .infos-bar, #panel_tarifs_c15,
+    button, a.back, #btn_bar,
+    .extra-section, .recap,
+    .piece-hdr .ptot { display:none !important; }
+
+    /* Entête chantier custom */
+    #print-header { display:block !important; }
+
+    /* Pièces */
+    .piece { page-break-inside:avoid; margin-bottom:8px; border:1px solid #ccc; border-radius:4px; }
+    .piece-hdr { background:#ddeeff !important; -webkit-print-color-adjust:exact; padding:5px 10px; }
+    .piece-hdr h3 { font-size:10pt; font-weight:bold; color:#1a2a3a; }
+
+    /* Tableau pièces : garder seulement Désignation | Min C15 | Qté — cacher Long et Total */
+    .piece-body th:nth-child(3), .piece-body td:nth-child(3),
+    .piece-body th:nth-child(5), .piece-body td:nth-child(5) { display:none !important; }
+    .piece-body td, .piece-body th { font-size:8.5pt; padding:2px 6px; }
+
+    /* Tableau et appareillage : garder seulement Désignation | Qté | Prix vente */
+    .extra-section { display:block !important; page-break-inside:avoid; margin-bottom:8px; }
+    .extra-hdr { background:#ddeeff !important; -webkit-print-color-adjust:exact; }
+    .extra-section .extra-row > input.extra-inp,
+    .extra-section .extra-row > input.extra-num:nth-child(3) { font-size:8.5pt; }
+    /* Cacher colonne Prix achat (3e colonne) */
+    .extra-header-row > div:nth-child(3),
+    .extra-row-print > span:nth-child(3) { display:none !important; }
+
+    /* Totaux HT et TTC seulement */
+    .recap { display:block !important; border:1px solid #ccc; border-radius:4px; margin-top:8px; page-break-inside:avoid; }
+    .rrow { display:none !important; }
+    .rrow.tot { display:flex !important; background:#fff8e8 !important; -webkit-print-color-adjust:exact; padding:5px 10px; }
+    .rrow.tot .rl { font-weight:bold; font-size:10pt; }
+    .rrow.tot .rv { font-size:11pt; font-weight:bold; color:#f0a500; }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
@@ -101,6 +150,21 @@
 </header>
 
 <div class="wrap">
+
+  <!-- Entete PDF -->
+  <div id="print-header" style="margin-bottom:14px;border-bottom:2px solid #f0a500;padding-bottom:8px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div>
+        <div style="font-size:14pt;font-weight:bold;color:#f0a500;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.05em">⚡ CAUSSE PIEUVRES</div>
+        <div style="font-size:9pt;color:#555;margin-top:2px">Dotations C15-100</div>
+      </div>
+      <div style="font-size:9pt;color:#1a2a3a;text-align:right">
+        <div><strong id="ph_client"></strong></div>
+        <div id="ph_surface_etage" style="color:#555"></div>
+        <div id="ph_date" style="color:#555"></div>
+      </div>
+    </div>
+  </div>
 
   <!-- Tarifs achat escamotables -->
   <div style="background:var(--panel);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:16px">
@@ -175,9 +239,54 @@
   <!-- Conteneur pièces -->
   <div id="pieces"></div>
 
+  <!-- Prix Pieuvre -->
+  <div class="extra-section" id="section-pieuvre">
+    <div class="extra-hdr"><span class="tag" style="background:#7B2D8B">P</span><h3>Prix Pieuvre (vente)</h3></div>
+    <div class="extra-body">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0">
+        <span style="font-size:.8rem;color:var(--muted)">Pieuvre électrique — Prix de vente</span>
+        <span class="extra-vente" id="pv_pieuvre" style="font-size:1rem">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tableau électrique -->
+  <div class="extra-section" id="section-tableau">
+    <div class="extra-hdr"><span class="tag">T</span><h3>Tableau électrique</h3></div>
+    <div class="extra-body">
+      <div class="extra-header-row">
+        <div class="extra-lbl" style="text-align:left">Désignation</div>
+        <div class="extra-lbl">Qté</div>
+        <div class="extra-lbl">Prix achat (€)</div>
+        <div class="extra-lbl">Prix vente (€)</div>
+      </div>
+      <div id="rows-tableau"></div>
+      <button onclick="ajouterLigne('tableau')" style="margin-top:8px;background:transparent;border:1px dashed var(--input-border);border-radius:4px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.7rem;padding:5px 12px;cursor:pointer;width:100%">+ Ajouter une ligne</button>
+    </div>
+  </div>
+
+  <!-- Appareillage -->
+  <div class="extra-section" id="section-appareillage">
+    <div class="extra-hdr"><span class="tag" style="background:var(--accent2)">A</span><h3>Appareillage</h3></div>
+    <div class="extra-body">
+      <div class="extra-header-row">
+        <div class="extra-lbl" style="text-align:left">Désignation</div>
+        <div class="extra-lbl">Qté</div>
+        <div class="extra-lbl">Prix achat (€)</div>
+        <div class="extra-lbl">Prix vente (€)</div>
+      </div>
+      <div id="rows-appareillage"></div>
+      <button onclick="ajouterLigne('appareillage')" style="margin-top:8px;background:transparent;border:1px dashed var(--input-border);border-radius:4px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.7rem;padding:5px 12px;cursor:pointer;width:100%">+ Ajouter une ligne</button>
+    </div>
+  </div>
+
   <!-- Récap -->
   <div class="recap">
     <div class="rh"><span>R</span><h2>Récapitulatif</h2></div>
+    <div class="rrow"><span class="rl">Tableau électrique (achat)</span><span class="rv" id="r_tab_achat">—</span></div>
+    <div class="rrow"><span class="rl">Tableau électrique (vente)</span><span class="rv" id="r_tab_vente">—</span></div>
+    <div class="rrow"><span class="rl">Appareillage (achat)</span><span class="rv" id="r_app_achat">—</span></div>
+    <div class="rrow"><span class="rl">Appareillage (vente)</span><span class="rv" id="r_app_vente">—</span></div>
     <div class="rrow"><span class="rl">Total points électriques</span><span class="rv" id="r_pts">—</span></div>
     <div class="rrow"><span class="rl">Total matière brute</span><span class="rv" id="r_mat">—</span></div>
     <div class="rrow"><span class="rl">Matière facturée (coef)</span><span class="rv" id="r_matf">—</span></div>
@@ -193,8 +302,8 @@
     <button onclick="sauvegarderC15()" style="background:transparent;border:1px solid var(--input-border);border-radius:4px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:10px 18px;cursor:pointer">&#128190; Sauvegarder</button>
     <button onclick="ouvrirListeEtudes()" style="background:transparent;border:1px solid var(--input-border);border-radius:4px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:10px 18px;cursor:pointer">&#128193; Mes etudes</button>
     <button onclick="nouveauC15()" style="background:transparent;border:1px solid var(--input-border);border-radius:4px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:10px 18px;cursor:pointer">&#10005; Nouveau</button>
-    <button onclick="window.print()" style="background:#5577aa;border:none;border-radius:4px;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 20px;cursor:pointer">&#128438; PDF</button>
-    <button onclick="exportExcel()" style="background:#1D9E75;border:none;border-radius:4px;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 20px;cursor:pointer">&#128202; Excel</button>
+    <button onclick="imprimerPDF()" class="no-print" style="background:#5577aa;border:none;border-radius:4px;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 20px;cursor:pointer">&#128438; PDF</button>
+    <button onclick="exportExcel()" class="no-print" style="background:#1D9E75;border:none;border-radius:4px;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 20px;cursor:pointer">&#128202; Excel</button>
     <button onclick="envoyerC15()" style="background:var(--accent);border:none;border-radius:4px;color:#0f1117;font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 24px;cursor:pointer">&#9993; Envoyer le devis</button>
   </div>
 
@@ -732,6 +841,79 @@ function recalcMarge(){
   if(ttcEl) ttcEl.textContent = (newTotal*1.2).toFixed(2)+' EUR';
 }
 
+var _lignesTableau = [];
+var _lignesAppareillage = [];
+
+function ajouterLigne(section){
+  var id = section+'_'+Date.now();
+  var arr = section==='tableau' ? _lignesTableau : _lignesAppareillage;
+  arr.push({id:id, label:'', qty:1, pa:0});
+  renderLignesExtra(section);
+}
+
+function supprimerLigne(section, id){
+  if(section==='tableau'){
+    _lignesTableau = _lignesTableau.filter(function(l){return l.id!==id;});
+  } else {
+    _lignesAppareillage = _lignesAppareillage.filter(function(l){return l.id!==id;});
+  }
+  renderLignesExtra(section);
+  recalc();
+}
+
+function renderLignesExtra(section){
+  var arr = section==='tableau' ? _lignesTableau : _lignesAppareillage;
+  var cont = document.getElementById('rows-'+section);
+  if(!cont) return;
+  cont.innerHTML='';
+  for(var i=0;i<arr.length;i++){
+    (function(ligne){
+      var row = document.createElement('div');
+      row.className='extra-row';
+
+      var inpL=document.createElement('input'); inpL.type='text'; inpL.className='extra-inp';
+      inpL.value=ligne.label; inpL.placeholder='Désignation';
+      inpL.addEventListener('input',function(){ligne.label=this.value;});
+
+      var inpQ=document.createElement('input'); inpQ.type='number'; inpQ.className='extra-num';
+      inpQ.value=ligne.qty; inpQ.min=0; inpQ.step=1;
+      inpQ.addEventListener('input',function(){ligne.qty=parseFloat(this.value)||0;recalc();});
+
+      var inpPA=document.createElement('input'); inpPA.type='number'; inpPA.className='extra-num';
+      inpPA.value=ligne.pa; inpPA.min=0; inpPA.step=0.01;
+      inpPA.addEventListener('input',function(){ligne.pa=parseFloat(this.value)||0;recalc();});
+
+      var divPV=document.createElement('div'); divPV.className='extra-vente'; divPV.id='pv_'+ligne.id;
+      divPV.textContent='—';
+
+      var btnDel=document.createElement('button');
+      btnDel.textContent='✕';
+      btnDel.style.cssText='background:transparent;border:none;color:#ff4d4d;font-size:.9rem;cursor:pointer;padding:0 4px';
+      btnDel.onclick=function(){supprimerLigne(section,ligne.id);};
+
+      var wrapper=document.createElement('div');
+      wrapper.style.cssText='display:grid;grid-template-columns:2fr 80px 100px 100px 24px;gap:8px;align-items:center;margin-bottom:8px';
+      wrapper.appendChild(inpL); wrapper.appendChild(inpQ); wrapper.appendChild(inpPA);
+      wrapper.appendChild(divPV); wrapper.appendChild(btnDel);
+      cont.appendChild(wrapper);
+    })(arr[i]);
+  }
+  recalc();
+}
+
+function calcExtra(arr){
+  var totAchat=0, totVente=0;
+  var cv=coef();
+  for(var i=0;i<arr.length;i++){
+    var pa=arr[i].pa*arr[i].qty;
+    var pv=pa*cv;
+    totAchat+=pa; totVente+=pv;
+    var el=document.getElementById('pv_'+arr[i].id);
+    if(el) el.textContent=(pv).toFixed(2)+' EUR';
+  }
+  return {achat:totAchat, vente:totVente};
+}
+
 function buildAll(){
   var cont = document.getElementById('pieces');
   cont.innerHTML = '';
@@ -746,9 +928,11 @@ function buildAll(){
     if(key==='garage'  || key==='cellier' || key==='bureau') continue;
     cont.appendChild(makePiece(key, PIECES[i].label, PIECES[i].lignes));
   }
-  for(var i=0; i<nbGarage;  i++) cont.appendChild(makePiece('garage'+(nbGarage>1?i+1:''),  nbGarage>1?'Garage '+(i+1):'Garage',   PIECES.find(function(p){return p.key==='garage';}).lignes));
-  for(var i=0; i<nbCellier; i++) cont.appendChild(makePiece('cellier'+(nbCellier>1?i+1:''), nbCellier>1?'Cellier '+(i+1):'Cellier', PIECES.find(function(p){return p.key==='cellier';}).lignes));
-  for(var i=0; i<nbBureau;  i++) cont.appendChild(makePiece('bureau'+(nbBureau>1?i+1:''),   nbBureau>1?'Bureau '+(i+1):'Bureau',   PIECES.find(function(p){return p.key==='bureau';}).lignes));
+  function findPiece(key){ for(var j=0;j<PIECES.length;j++){ if(PIECES[j].key===key) return PIECES[j]; } return null; }
+  var pGarage=findPiece('garage'); var pCellier=findPiece('cellier'); var pBureau=findPiece('bureau');
+  for(var i=0; i<nbGarage;  i++) if(pGarage)  cont.appendChild(makePiece('garage' +(nbGarage >1?i+1:''), nbGarage >1?'Garage ' +(i+1):'Garage',  pGarage.lignes));
+  for(var i=0; i<nbCellier; i++) if(pCellier) cont.appendChild(makePiece('cellier'+(nbCellier>1?i+1:''), nbCellier>1?'Cellier '+(i+1):'Cellier', pCellier.lignes));
+  for(var i=0; i<nbBureau;  i++) if(pBureau)  cont.appendChild(makePiece('bureau' +(nbBureau >1?i+1:''), nbBureau >1?'Bureau ' +(i+1):'Bureau',  pBureau.lignes));
 
   // WC multiples
   var nbWc = parseInt(document.getElementById('nb_wc') ? document.getElementById('nb_wc').value : 1)||0;
@@ -868,13 +1052,28 @@ function recalc(){
   var heureV = heure();
   var matFact = totMat * coefV;
   var moFact = (totTemps/60) * heureV;
+  // Extra : tableau et appareillage AVANT calcul total et marge
+  var resTab = calcExtra(_lignesTableau);
+  var resApp = calcExtra(_lignesAppareillage);
+  matFact += resTab.vente + resApp.vente;
+
   var total = matFact + moFact + totTransport;
-  // Marge : PV - matière brute - coût réel MO (heure-17) - transport
-  var coutReelMO = (totTemps/60) * (heureV - 17);
-  var marge = total - totMat - coutReelMO - totTransport;
+  var coutReelMO = (totTemps/60) * 27;
+  // Marge = PV - matiere brute - achat tableau - achat appareillage - cout reel MO - transport
+  var marge = total - totMat - resTab.achat - resApp.achat - coutReelMO - totTransport;
   var margeP = total > 0 ? (marge/total*100).toFixed(1) : '0';
 
   function sv(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
+  function fmt2(v){return v.toFixed(2)+' EUR';}
+  // Prix vente pieuvre = matière facturée AVANT tableau/appareillage
+  var pvPieuvre = (totMat * coefV) + moFact + totTransport;
+  var elPvP = document.getElementById('pv_pieuvre');
+  if(elPvP) elPvP.textContent = pvPieuvre.toFixed(2)+' EUR';
+  sv('r_tab_achat', fmt2(resTab.achat));
+  sv('r_tab_vente', fmt2(resTab.vente));
+  sv('r_app_achat', fmt2(resApp.achat));
+  sv('r_app_vente', fmt2(resApp.vente));
+
   sv('r_pts',   totPts+' points');
   sv('r_mat',   totMat.toFixed(2)+' EUR');
   sv('r_matf',  matFact.toFixed(2)+' EUR (x'+coefV.toFixed(2)+')');
@@ -884,6 +1083,7 @@ function recalc(){
   if(trspInput && (+trspInput.value===0) && totTransport>0) trspInput.value=totTransport.toFixed(2);
   sv('r_marge', marge.toFixed(2)+' EUR ('+margeP+'%)');
   sv('r_tot',   total.toFixed(2)+' EUR');
+  var ttcEl=document.getElementById('r_ttc'); if(ttcEl) ttcEl.textContent=(total*1.2).toFixed(2)+' EUR';
 }
 
 function findLine(lid){
@@ -895,6 +1095,32 @@ function findLine(lid){
     if(lid.length>suffix.length && lid.slice(-suffix.length)===suffix) return all[i];
   }
   return null;
+}
+
+function imprimerPDF(){
+  // Remplir entete PDF
+  var cl=document.getElementById('p_client'); var se=document.getElementById('p_surface');
+  var et=document.getElementById('p_etages');
+  var phc=document.getElementById('ph_client'); if(phc) phc.textContent=cl?cl.value:'';
+  var phs=document.getElementById('ph_surface_etage');
+  if(phs) phs.textContent=(se?se.value+' m2':'')+' — '+(et?et.options[et.selectedIndex].text:'');
+  var phd=document.getElementById('ph_date'); if(phd) phd.textContent=new Date().toLocaleDateString('fr-FR');
+
+  var rows=document.querySelectorAll('.piece-body tbody tr');
+  for(var i=0;i<rows.length;i++){
+    var inMin=rows[i].querySelector('input.imin');
+    var inQty=rows[i].querySelector('input.iqty');
+    var mn=inMin?(parseInt(inMin.value)||0):0;
+    var qty=inQty?(parseInt(inQty.value)||0):0;
+    if(mn===0 && qty===0){ rows[i].style.display='none'; rows[i].dataset.ph='1'; }
+  }
+  setTimeout(function(){
+    window.print();
+    setTimeout(function(){
+      var rs=document.querySelectorAll('.piece-body tbody tr[data-ph="1"]');
+      for(var i=0;i<rs.length;i++){ rs[i].style.display=''; rs[i].removeAttribute('data-ph'); }
+    },500);
+  },100);
 }
 
 function exportExcel(){
@@ -1020,6 +1246,10 @@ function exportExcelCore(){
 }
 
 buildAll();
+_lignesTableau.push({id:'tab_0', label:'', qty:1, pa:0});
+_lignesAppareillage.push({id:'app_0', label:'', qty:1, pa:0});
+renderLignesExtra('tableau');
+renderLignesExtra('appareillage');
 </script>
 
 <div class="modal-overlay" id="modal-etudes" onclick="fermerModal()">
@@ -1031,6 +1261,7 @@ buildAll();
 </div>
 </body>
 </html>
+
 
 
 
