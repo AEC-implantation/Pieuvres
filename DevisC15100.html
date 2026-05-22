@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -69,10 +68,10 @@
   .extra-hdr span.tag{font-family:'IBM Plex Mono',monospace;font-size:.6rem;font-weight:700;color:var(--bg);background:var(--accent);padding:2px 7px;border-radius:2px}
   .extra-hdr h3{font-size:.75rem;font-weight:500;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
   .extra-body{padding:10px 14px}
-  .extra-row{display:grid;grid-template-columns:2fr 80px 100px 100px;gap:8px;align-items:center;margin-bottom:8px}
+  .extra-row{display:grid;grid-template-columns:2fr 80px 100px 24px;gap:8px;align-items:center;margin-bottom:8px}
   .extra-row:last-child{margin-bottom:0}
   .extra-lbl{font-size:.7rem;color:var(--muted);text-align:center}
-  .extra-header-row{display:grid;grid-template-columns:2fr 80px 100px 100px;gap:8px;margin-bottom:6px}
+  .extra-header-row{display:grid;grid-template-columns:2fr 70px 65px 90px;gap:8px;margin-bottom:6px}
   input.extra-inp{background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:.8rem;padding:4px 7px;outline:none;width:100%}
   input.extra-inp:focus{border-color:var(--accent)}
   input.extra-num{background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.8rem;font-weight:600;padding:4px 7px;outline:none;width:100%;text-align:right;-moz-appearance:textfield}
@@ -124,13 +123,15 @@
     .piece-body td, .piece-body th { font-size:8.5pt; padding:2px 6px; }
 
     /* Tableau et appareillage : garder seulement Désignation | Qté | Prix vente */
-    .extra-section { display:block !important; page-break-inside:avoid; margin-bottom:8px; }
+    .extra-section { page-break-inside:avoid; margin-bottom:8px; }
+    .extra-section:not([style*="display: none"]):not([style*="display:none"]) { display:block !important; }
+    #tab_pa_inp { display:none !important; }
+    #tab-simple-row > div:nth-child(3) { display:none !important; }
     .extra-hdr { background:#ddeeff !important; -webkit-print-color-adjust:exact; }
     .extra-section .extra-row > input.extra-inp,
     .extra-section .extra-row > input.extra-num:nth-child(3) { font-size:8.5pt; }
-    /* Cacher colonne Prix achat (3e colonne) */
-    .extra-header-row > div:nth-child(3),
-    .extra-row-print > span:nth-child(3) { display:none !important; }
+    .extra-header-row > div:nth-child(3){ display:none !important; }
+    .extra-num[placeholder="PA"]{ display:none !important; }
 
     /* Totaux HT et TTC seulement */
     .recap { display:block !important; border:1px solid #ccc; border-radius:4px; margin-top:8px; page-break-inside:avoid; }
@@ -230,6 +231,16 @@
     <input type="number" id="nb_cellier" class="pi-spin" value="0" min="0" max="3" step="1" style="width:58px;-webkit-appearance:auto;appearance:auto;-moz-appearance:auto" oninput="buildAll()" onchange="buildAll()">
     <span class="p-label">Nb Bureau</span>
     <input type="number" id="nb_bureau" class="pi-spin" value="0" min="0" max="3" step="1" style="width:58px;-webkit-appearance:auto;appearance:auto;-moz-appearance:auto" oninput="buildAll()" onchange="buildAll()">
+    <span class="p-label">Tableau</span>
+    <select id="opt_tab" style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:600;padding:3px 8px;outline:none" onchange="toggleTableau()">
+      <option value="oui">Oui</option>
+      <option value="non">Non</option>
+    </select>
+    <span class="p-label">Appareillage</span>
+    <select id="opt_app" style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:600;padding:3px 8px;outline:none" onchange="toggleAppareillage()">
+      <option value="oui">Oui</option>
+      <option value="non">Non</option>
+    </select>
     <span class="p-label" style="margin-left:12px">Prix heure MO (€)</span>
     <input type="number" class="pi" id="p_heure" value="45" min="0" step="1" oninput="recalc()" onchange="recalc()">
     <span class="p-label">Coef matière</span>
@@ -254,14 +265,17 @@
   <div class="extra-section" id="section-tableau">
     <div class="extra-hdr"><span class="tag">T</span><h3>Tableau électrique</h3></div>
     <div class="extra-body">
-      <div class="extra-header-row">
-        <div class="extra-lbl" style="text-align:left">Désignation</div>
-        <div class="extra-lbl">Qté</div>
-        <div class="extra-lbl">Prix achat (€)</div>
-        <div class="extra-lbl">Prix vente (€)</div>
+      <div id="tab-simple-row" style="display:grid;grid-template-columns:1fr 110px 110px;gap:12px;align-items:center;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)">
+        <span style="font-size:.8rem;color:var(--muted)">Tableau électrique</span>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+          <span style="font-size:.68rem;color:var(--muted)">PA (€)</span>
+          <input type="number" id="tab_pa_inp" class="extra-num" value="0" min="0" step="0.01" oninput="recalc();" onchange="recalc();" style="width:100px">
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+          <span style="font-size:.68rem;color:var(--muted)">PV (€)</span>
+          <input type="number" id="tab_pv_inp" class="extra-num" value="0" min="0" step="0.01" oninput="this.dataset.userSet='1';recalc();" onchange="this.dataset.userSet='1';recalc();" style="color:var(--accent2);width:100px">
+        </div>
       </div>
-      <div id="rows-tableau"></div>
-      <button onclick="ajouterLigne('tableau')" style="margin-top:8px;background:transparent;border:1px dashed var(--input-border);border-radius:4px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.7rem;padding:5px 12px;cursor:pointer;width:100%">+ Ajouter une ligne</button>
     </div>
   </div>
 
@@ -269,11 +283,24 @@
   <div class="extra-section" id="section-appareillage">
     <div class="extra-hdr"><span class="tag" style="background:var(--accent2)">A</span><h3>Appareillage</h3></div>
     <div class="extra-body">
-      <div class="extra-header-row">
+      <div id="app-auto-row" style="display:grid;grid-template-columns:1fr 110px 110px;gap:12px;align-items:center;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)">
+        <span style="font-size:.8rem;color:var(--muted)">Appareillage calcule (points electriques)</span>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+          <span style="font-size:.68rem;color:var(--muted)">PA (€)</span>
+          <input type="number" id="app_auto_pa_inp" class="extra-num" value="0" min="0" step="0.01" oninput="recalc();" onchange="recalc();" style="width:100px">
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+          <span style="font-size:.68rem;color:var(--muted)">PV (€)</span>
+          <input type="number" id="app_auto_pv" class="extra-num" value="0" min="0" step="0.01" oninput="this.dataset.userSet='1';recalcAppAuto();" onchange="this.dataset.userSet='1';recalcAppAuto();" style="color:var(--accent2);width:100px">
+        </div>
+        <div id="app_auto_pa" style="display:none">—</div>
+      </div>
+      <div class="extra-header-row" style="display:grid;grid-template-columns:2fr 70px 100px 100px 24px;gap:8px;margin-bottom:4px">
         <div class="extra-lbl" style="text-align:left">Désignation</div>
         <div class="extra-lbl">Qté</div>
-        <div class="extra-lbl">Prix achat (€)</div>
-        <div class="extra-lbl">Prix vente (€)</div>
+        <div class="extra-lbl">PA (€)</div>
+        <div class="extra-lbl">PV (€)</div>
+        <div></div>
       </div>
       <div id="rows-appareillage"></div>
       <button onclick="ajouterLigne('appareillage')" style="margin-top:8px;background:transparent;border:1px dashed var(--input-border);border-radius:4px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.7rem;padding:5px 12px;cursor:pointer;width:100%">+ Ajouter une ligne</button>
@@ -285,15 +312,17 @@
     <div class="rh"><span>R</span><h2>Récapitulatif</h2></div>
     <div class="rrow"><span class="rl">Tableau électrique (achat)</span><span class="rv" id="r_tab_achat">—</span></div>
     <div class="rrow"><span class="rl">Tableau électrique (vente)</span><span class="rv" id="r_tab_vente">—</span></div>
-    <div class="rrow"><span class="rl">Appareillage (achat)</span><span class="rv" id="r_app_achat">—</span></div>
-    <div class="rrow"><span class="rl">Appareillage (vente)</span><span class="rv" id="r_app_vente">—</span></div>
+    <div class="rrow"><span class="rl">Appareillage auto (achat)</span><span class="rv" id="r_app_auto_achat">—</span></div>
+    <div class="rrow"><span class="rl">Appareillage auto (vente)</span><span class="rv" id="r_app_auto_vente">—</span></div>
+    <div class="rrow"><span class="rl">Appareillage suppl. (achat)</span><span class="rv" id="r_app_achat">—</span></div>
+    <div class="rrow"><span class="rl">Appareillage suppl. (vente)</span><span class="rv" id="r_app_vente">—</span></div>
     <div class="rrow"><span class="rl">Total points électriques</span><span class="rv" id="r_pts">—</span></div>
     <div class="rrow"><span class="rl">Total matière brute</span><span class="rv" id="r_mat">—</span></div>
     <div class="rrow"><span class="rl">Matière facturée (coef)</span><span class="rv" id="r_matf">—</span></div>
     <div class="rrow"><span class="rl">Main d'oeuvre</span><span class="rv" id="r_mo">—</span></div>
     <div class="rrow"><span class="rl">Transport facturé (€)</span><input type="number" id="r_trsp_input" value="0" min="0" step="10" style="width:90px;text-align:right;background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.85rem;font-weight:600;padding:3px 8px;outline:none;-moz-appearance:textfield" oninput="recalcMarge()" onchange="recalcMarge()"></div>
     <div class="rrow"><span class="rl">Marge</span><span class="rv" style="color:var(--accent)" id="r_marge">—</span></div>
-    <div class="rrow tot"><span class="rl">PRIX TOTAL HT</span><span class="rv" id="r_tot">—</span></div>
+    <div class="rrow tot" ondblclick="modifierPrixHT()" style="cursor:pointer" title="Double-clic pour modifier"><span class="rl">PRIX TOTAL HT</span><span class="rv" id="r_tot_inp">—</span><span id="r_tot" style="display:none">—</span></div>
     <div class="rrow tot" style="border-top:1px solid rgba(240,165,0,.3)"><span class="rl">PRIX TOTAL TTC (TVA 20%)</span><span class="rv" id="r_ttc">—</span></div>
   </div>
 
@@ -841,6 +870,145 @@ function recalcMarge(){
   if(ttcEl) ttcEl.textContent = (newTotal*1.2).toFixed(2)+' EUR';
 }
 
+// PA appareillage par type de point (id dans PIECES/CHAMBRE/SDB/WC/LD)
+var PA_APP = {
+  vv:   4.56,
+  bp:   2.28,
+  dcl:  2.12,
+  p20:  2.16,
+  p32:  2.85,
+  lave: 2.16,
+  hott: 2.16,
+  frig: 2.16,
+  rj:   5.57,
+  tv:   8.62,
+  vr:   8.63,
+  chauf:2.85,
+  ss:   2.85,
+  sonn: 4.62,
+  pdr:  8.63,
+  clim: 0,
+  vmc:  4.62,
+  chaud:0,
+  p20_ext: 7.01,
+  dcl_ext: 2.12,
+  bp_ext:  6.59
+};
+
+// Correspondance id pièce -> PA
+function getPAApp(lid){
+  // lid ex: sejour_p20, ld_vmc, exterieur_p20, exterieur_dcl, exterieur_bp
+  if(lid.indexOf('exterieur_p20')>=0) return PA_APP.p20_ext;
+  if(lid.indexOf('exterieur_dcl')>=0) return PA_APP.dcl_ext;
+  if(lid.indexOf('exterieur_bp')>=0)  return PA_APP.bp_ext;
+  for(var k in PA_APP){
+    if(lid.indexOf('_'+k)>=0 || lid.slice(-k.length)===k) return PA_APP[k];
+  }
+  return 0;
+}
+
+function toggleTableau(){
+  var val = document.getElementById('opt_tab') ? document.getElementById('opt_tab').value : 'oui';
+  var secT = document.getElementById('section-tableau');
+  if(secT) secT.style.display = val==='oui' ? 'block' : 'none';
+  var secP = document.getElementById('section-pieuvre');
+  if(secP) secP.style.display = val==='oui' ? 'block' : 'none';
+  var ids=['r_tab_achat','r_tab_vente'];
+  for(var i=0;i<ids.length;i++){
+    var el=document.getElementById(ids[i]);
+    if(el){ var row=el.parentNode; if(row) row.style.display = val==='oui' ? 'flex' : 'none'; }
+  }
+  recalc();
+}
+
+function toggleAppareillage(){
+  var val = document.getElementById('opt_app') ? document.getElementById('opt_app').value : 'oui';
+  var secA = document.getElementById('section-appareillage');
+  if(secA) secA.style.display = val==='oui' ? 'block' : 'none';
+  // Cacher/afficher les lignes appareillage dans le recap
+  var ids=['r_app_auto_achat','r_app_auto_vente','r_app_achat','r_app_vente'];
+  for(var i=0;i<ids.length;i++){
+    var el=document.getElementById(ids[i]);
+    if(el){
+      var row=el.parentNode;
+      if(row) row.style.display = val==='oui' ? 'flex' : 'none';
+    }
+  }
+  recalc();
+}
+
+function modifierPrixHT(){
+  var el=document.getElementById('r_tot_inp');
+  var current=el?el.textContent.replace(' EUR','').replace(',','.').trim():'0';
+  var val=prompt('Prix total HT (EUR) :', current);
+  if(val===null) return;
+  var num=parseFloat(val.replace(',','.'));
+  if(isNaN(num)) return;
+  if(el){ el.textContent=num.toFixed(2)+' EUR'; el.dataset.userSet='1'; }
+  recalcTTCCore(num);
+}
+
+function recalcTTCFromSpan(){
+  var span=document.getElementById('r_tot_inp');
+  if(!span) return;
+  span.dataset.userSet='1';
+  recalcTTCCore(parseFloat(span.textContent.replace(',','.'))||0);
+}
+
+function recalcTTC(){
+  recalcTTCCore(0);
+}
+
+function recalcTTCCore(ht){
+  if(!ht){ var span=document.getElementById('r_tot_inp'); ht=span?(parseFloat((span.textContent||'0').replace(' EUR','').replace(',','.'))||0):0; }
+  var ttcEl=document.getElementById('r_ttc');
+  if(ttcEl) ttcEl.textContent=(ht*1.2).toFixed(2)+' EUR';
+  // Recalculer la marge avec le nouveau prix total
+  var matEl=document.getElementById('r_mat');
+  var moEl=document.getElementById('r_mo');
+  var tabAEl=document.getElementById('r_tab_achat');
+  var appAEl=document.getElementById('r_app_auto_achat');
+  var appSEl=document.getElementById('r_app_achat');
+  var trspEl=document.getElementById('r_trsp_input');
+  var mat=matEl?(parseFloat(matEl.textContent)||0):0;
+  var mo=moEl?(parseFloat(moEl.textContent)||0):0;
+  var tabA=tabAEl?(parseFloat(tabAEl.textContent)||0):0;
+  var appA=appAEl?(parseFloat(appAEl.textContent)||0):0;
+  var appS=appSEl?(parseFloat(appSEl.textContent)||0):0;
+  var trsp=trspEl?(parseFloat(trspEl.value)||0):0;
+  var heureV=parseFloat(document.getElementById('p_heure').value)||45;
+  var moH=mo>0&&heureV>0?mo/heureV:0;
+  var coutMO=moH*27;
+  var marge=ht-mat-tabA-appA-appS-coutMO-trsp;
+  var margeP=ht>0?(marge/ht*100).toFixed(1):'0';
+  var margeEl=document.getElementById('r_marge');
+  if(margeEl) margeEl.textContent=marge.toFixed(2)+' EUR ('+margeP+'%)';
+}
+
+function recalcAppAuto(){
+  recalc();
+}
+
+function calcAppareillageAuto(){
+  // Parcourir toutes les pièces et calculer PA total appareillage
+  var totPA=0;
+  var pieces=document.querySelectorAll('.piece');
+  for(var p=0;p<pieces.length;p++){
+    var rows=pieces[p].querySelectorAll('tbody tr');
+    for(var r=0;r<rows.length;r++){
+      var inMin=rows[r].querySelector('input.imin');
+      var inQty=rows[r].querySelector('input.iqty');
+      if(!inQty) continue;
+      var qty=parseInt(inQty.value)||0;
+      if(qty===0) continue;
+      var lid=inQty.id.replace('_q','');
+      var pa=getPAApp(lid);
+      totPA+=pa*qty;
+    }
+  }
+  return totPA;
+}
+
 var _lignesTableau = [];
 var _lignesAppareillage = [];
 
@@ -881,10 +1049,13 @@ function renderLignesExtra(section){
 
       var inpPA=document.createElement('input'); inpPA.type='number'; inpPA.className='extra-num';
       inpPA.value=ligne.pa; inpPA.min=0; inpPA.step=0.01;
+      inpPA.placeholder='PA'; inpPA.style.width='60px';
       inpPA.addEventListener('input',function(){ligne.pa=parseFloat(this.value)||0;recalc();});
 
-      var divPV=document.createElement('div'); divPV.className='extra-vente'; divPV.id='pv_'+ligne.id;
-      divPV.textContent='—';
+      var divPV=document.createElement('input'); divPV.type='number'; divPV.className='extra-num';
+      divPV.id='pv_'+ligne.id; divPV.value=0; divPV.min=0; divPV.step=0.01;
+      divPV.style.color='var(--accent2)';
+      divPV.addEventListener('input',function(){ligne.pv=parseFloat(this.value)||0; ligne.pvSet=true; recalc();});
 
       var btnDel=document.createElement('button');
       btnDel.textContent='✕';
@@ -892,7 +1063,7 @@ function renderLignesExtra(section){
       btnDel.onclick=function(){supprimerLigne(section,ligne.id);};
 
       var wrapper=document.createElement('div');
-      wrapper.style.cssText='display:grid;grid-template-columns:2fr 80px 100px 100px 24px;gap:8px;align-items:center;margin-bottom:8px';
+      wrapper.style.cssText='display:grid;grid-template-columns:2fr 70px 65px 90px 24px;gap:8px;align-items:center;margin-bottom:8px';
       wrapper.appendChild(inpL); wrapper.appendChild(inpQ); wrapper.appendChild(inpPA);
       wrapper.appendChild(divPV); wrapper.appendChild(btnDel);
       cont.appendChild(wrapper);
@@ -906,10 +1077,16 @@ function calcExtra(arr){
   var cv=coef();
   for(var i=0;i<arr.length;i++){
     var pa=arr[i].pa*arr[i].qty;
-    var pv=pa*cv;
-    totAchat+=pa; totVente+=pv;
+    var pvCalc=pa*cv;
     var el=document.getElementById('pv_'+arr[i].id);
-    if(el) el.textContent=(pv).toFixed(2)+' EUR';
+    var pv=pvCalc;
+    if(el){
+      if(!arr[i].pvSet){ el.value=pvCalc.toFixed(2); }
+      pv=(parseFloat(el.value)||pvCalc)*arr[i].qty;
+      // Correction : PV stocké est par unité ou total ?
+      pv=arr[i].pvSet ? (parseFloat(el.value)||pvCalc) : pvCalc;
+    }
+    totAchat+=pa; totVente+=pv;
   }
   return {achat:totAchat, vente:totVente};
 }
@@ -1053,14 +1230,38 @@ function recalc(){
   var matFact = totMat * coefV;
   var moFact = (totTemps/60) * heureV;
   // Extra : tableau et appareillage AVANT calcul total et marge
-  var resTab = calcExtra(_lignesTableau);
+  // Appareillage automatique
+  var optApp = document.getElementById('opt_app') ? document.getElementById('opt_app').value : 'oui';
+  var autoPA = optApp==='oui' ? calcAppareillageAuto() : 0;
+  var autoPVCalc = autoPA * coefV;
+  var elAPA=document.getElementById('app_auto_pa'); if(elAPA) elAPA.textContent=autoPA.toFixed(2)+' EUR';
+  var elAPAInp=document.getElementById('app_auto_pa_inp');
+  if(elAPAInp && (!elAPAInp.dataset.userSet || elAPAInp.dataset.userSet==='0')) elAPAInp.value=autoPA.toFixed(2);
+  var autoPAForMarge = elAPAInp ? (parseFloat(elAPAInp.value)||autoPA) : autoPA;
+  var elAPV=document.getElementById('app_auto_pv');
+  var autoPV = 0;
+  if(optApp==='oui' && elAPV){
+    if(!elAPV.dataset.userSet || elAPV.dataset.userSet==='0'){
+      elAPV.value=autoPVCalc.toFixed(2);
+    }
+    autoPV = parseFloat(elAPV.value)||autoPVCalc;
+  }
+
+  var optTab = document.getElementById('opt_tab') ? document.getElementById('opt_tab').value : 'oui';
+  var tabPvEl = document.getElementById('tab_pv_inp');
+  var tabPaEl = document.getElementById('tab_pa_inp');
+  var tabPa = (optTab==='oui' && tabPaEl) ? (parseFloat(tabPaEl.value)||0) : 0;
+  var tabPv = (optTab==='oui' && tabPvEl) ? (parseFloat(tabPvEl.value)||0) : 0;
+  var resTab = {achat:tabPa, vente:tabPv};
   var resApp = calcExtra(_lignesAppareillage);
-  matFact += resTab.vente + resApp.vente;
+  matFact += (optTab==='oui'?tabPv:0) + (optApp==='oui'?resApp.vente:0) + autoPV;
 
   var total = matFact + moFact + totTransport;
   var coutReelMO = (totTemps/60) * 27;
   // Marge = PV - matiere brute - achat tableau - achat appareillage - cout reel MO - transport
-  var marge = total - totMat - resTab.achat - resApp.achat - coutReelMO - totTransport;
+  var appSupPV = optApp==='oui' ? resApp.vente : 0;
+  var appSupPA = optApp==='oui' ? resApp.achat : 0;
+  var marge = total - totMat - (optTab==='oui'?tabPa:0) - autoPAForMarge - appSupPA - coutReelMO - totTransport;
   var margeP = total > 0 ? (marge/total*100).toFixed(1) : '0';
 
   function sv(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
@@ -1069,8 +1270,10 @@ function recalc(){
   var pvPieuvre = (totMat * coefV) + moFact + totTransport;
   var elPvP = document.getElementById('pv_pieuvre');
   if(elPvP) elPvP.textContent = pvPieuvre.toFixed(2)+' EUR';
-  sv('r_tab_achat', fmt2(resTab.achat));
-  sv('r_tab_vente', fmt2(resTab.vente));
+  sv('r_tab_achat', fmt2(tabPa));
+  sv('r_tab_vente', fmt2(tabPv));
+  sv('r_app_auto_achat', fmt2(autoPA));
+  sv('r_app_auto_vente', fmt2(autoPV));
   sv('r_app_achat', fmt2(resApp.achat));
   sv('r_app_vente', fmt2(resApp.vente));
 
@@ -1082,8 +1285,12 @@ function recalc(){
   var trspInput=document.getElementById('r_trsp_input');
   if(trspInput && (+trspInput.value===0) && totTransport>0) trspInput.value=totTransport.toFixed(2);
   sv('r_marge', marge.toFixed(2)+' EUR ('+margeP+'%)');
-  sv('r_tot',   total.toFixed(2)+' EUR');
-  var ttcEl=document.getElementById('r_ttc'); if(ttcEl) ttcEl.textContent=(total*1.2).toFixed(2)+' EUR';
+  sv('r_tot', total.toFixed(2)+' EUR');
+  var rtInp=document.getElementById('r_tot_inp');
+  if(rtInp && !rtInp.dataset.userSet) rtInp.textContent=total.toFixed(2)+' EUR';
+  var ht=rtInp?(parseFloat(rtInp.value)||total):total;
+  var ttcEl=document.getElementById('r_ttc');
+  if(ttcEl) ttcEl.textContent=(ht*1.2).toFixed(2)+' EUR';
 }
 
 function findLine(lid){
@@ -1098,26 +1305,25 @@ function findLine(lid){
 }
 
 function imprimerPDF(){
-  // Remplir entete PDF
-  var cl=document.getElementById('p_client'); var se=document.getElementById('p_surface');
+  var cl=document.getElementById('p_client');
+  var se=document.getElementById('p_surface');
   var et=document.getElementById('p_etages');
   var phc=document.getElementById('ph_client'); if(phc) phc.textContent=cl?cl.value:'';
   var phs=document.getElementById('ph_surface_etage');
-  if(phs) phs.textContent=(se?se.value+' m2':'')+' — '+(et?et.options[et.selectedIndex].text:'');
+  if(phs) phs.textContent=(se?se.value+' m2':'')+' — '+(et&&et.selectedIndex>=0?et.options[et.selectedIndex].text:'');
   var phd=document.getElementById('ph_date'); if(phd) phd.textContent=new Date().toLocaleDateString('fr-FR');
-
   var rows=document.querySelectorAll('.piece-body tbody tr');
   for(var i=0;i<rows.length;i++){
     var inMin=rows[i].querySelector('input.imin');
     var inQty=rows[i].querySelector('input.iqty');
     var mn=inMin?(parseInt(inMin.value)||0):0;
     var qty=inQty?(parseInt(inQty.value)||0):0;
-    if(mn===0 && qty===0){ rows[i].style.display='none'; rows[i].dataset.ph='1'; }
+    if(mn===0 && qty===0){ rows[i].style.display='none'; rows[i].setAttribute('data-ph','1'); }
   }
   setTimeout(function(){
     window.print();
     setTimeout(function(){
-      var rs=document.querySelectorAll('.piece-body tbody tr[data-ph="1"]');
+      var rs=document.querySelectorAll('[data-ph="1"]');
       for(var i=0;i<rs.length;i++){ rs[i].style.display=''; rs[i].removeAttribute('data-ph'); }
     },500);
   },100);
@@ -1247,7 +1453,6 @@ function exportExcelCore(){
 
 buildAll();
 _lignesTableau.push({id:'tab_0', label:'', qty:1, pa:0});
-_lignesAppareillage.push({id:'app_0', label:'', qty:1, pa:0});
 renderLignesExtra('tableau');
 renderLignesExtra('appareillage');
 </script>
@@ -1261,7 +1466,4 @@ renderLignesExtra('appareillage');
 </div>
 </body>
 </html>
-
-
-
 
