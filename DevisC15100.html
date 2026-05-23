@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -125,8 +126,10 @@
     /* Tableau et appareillage : garder seulement Désignation | Qté | Prix vente */
     .extra-section { page-break-inside:avoid; margin-bottom:8px; }
     .extra-section:not([style*="display: none"]):not([style*="display:none"]) { display:block !important; }
-    #tab_pa_inp { display:none !important; }
-    #tab-simple-row > div:nth-child(3) { display:none !important; }
+    #tab_pa_inp, #tab-simple-row > div:first-of-type { display:none !important; }
+    #app_auto_pa_inp { display:none !important; }
+    #app-auto-row { grid-template-columns:1fr 110px !important; }
+    #app-auto-row > div:nth-child(2) > span { display:none !important; }
     .extra-hdr { background:#ddeeff !important; -webkit-print-color-adjust:exact; }
     .extra-section .extra-row > input.extra-inp,
     .extra-section .extra-row > input.extra-num:nth-child(3) { font-size:8.5pt; }
@@ -273,7 +276,7 @@
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
           <span style="font-size:.68rem;color:var(--muted)">PV (€)</span>
-          <input type="number" id="tab_pv_inp" class="extra-num" value="0" min="0" step="0.01" oninput="this.dataset.userSet='1';recalc();" onchange="this.dataset.userSet='1';recalc();" style="color:var(--accent2);width:100px">
+          <input type="number" id="tab_pv_inp" class="extra-num" value="0.00" min="0" step="1" oninput="this.dataset.userSet='1';recalc();" onchange="this.dataset.userSet='1';this.value=parseFloat(this.value).toFixed(2);recalc();" style="color:var(--accent2);width:100px">
         </div>
       </div>
     </div>
@@ -1466,4 +1469,5 @@ renderLignesExtra('appareillage');
 </div>
 </body>
 </html>
+
 
