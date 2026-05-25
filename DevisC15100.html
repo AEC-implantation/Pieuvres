@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -105,7 +104,7 @@
     body{ background:white; padding:8px 12px; font-family:Arial,sans-serif; font-size:9pt; }
 
     /* Cacher tout par défaut */
-    .params-bar, .infos-bar, #panel_tarifs_c15,
+    .params-bar, .infos-bar, #panel_tarifs_c15, #div-tarifs,
     button, a.back, #btn_bar,
     .extra-section, .recap,
     .piece-hdr .ptot { display:none !important; }
@@ -171,7 +170,7 @@
   </div>
 
   <!-- Tarifs achat escamotables -->
-  <div style="background:var(--panel);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:16px">
+  <div id="div-tarifs" style="background:var(--panel);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:16px">
     <div style="background:var(--hdr);padding:9px 14px;display:flex;align-items:center;justify-content:space-between">
       <div style="display:flex;align-items:center;gap:8px">
         <span style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;font-weight:700;color:var(--bg);background:var(--accent);padding:2px 7px;border-radius:2px">TARIFS</span>
@@ -363,11 +362,11 @@ var PIECES = [
   ]},
   {key:'cuisine', label:'Cuisine', lignes:[
     {id:'p20',   label:'Prises 16A 2P+T',        min:6, nf:3, pf:'fil25', pi:'ict20', L:15},
-    {id:'p32',   label:'Prise 32A (four)',        min:1, nf:3, pf:'fil6',  pi:'ict25', L:20},
+    {id:'p32',   label:'Prise 32A (plaque de cuisson)',        min:1, nf:3, pf:'fil6',  pi:'ict25', L:20},
     {id:'lave',  label:'Lave-vaisselle 20A',      min:1, nf:3, pf:'fil25', pi:'ict20', L:20},
     {id:'dcl',   label:'DCL plafond',             min:1, nf:3, pf:'fil15', pi:'ict25', L:10},
     {id:'hott',  label:'Hotte circuit dedie',     min:1, nf:3, pf:'fil15', pi:'ict20', L:15},
-    {id:'frig',  label:'Refrigerateur 20A',       min:1, nf:3, pf:'fil25', pi:'ict20', L:15},
+    {id:'frig',  label:'Specialisee 20A',       min:1, nf:3, pf:'fil25', pi:'ict20', L:15},
     {id:'bp',    label:'Simple allumage / BP',    min:1, nf:2, pf:'fil15', pi:'ict20', L:10},
     {id:'vv',    label:'Va-et-vient',             min:0, nf:3, pf:'fil15', pi:'ict20', L:12},
     {id:'vr',    label:'Volet roulant',           min:0, nf:3, pf:'fil15', pi:'ict20', L:20},
@@ -1469,5 +1468,6 @@ renderLignesExtra('appareillage');
 </div>
 </body>
 </html>
+
 
 

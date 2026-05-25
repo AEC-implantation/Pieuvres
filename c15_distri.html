@@ -198,11 +198,11 @@ var PIECES = [
   ]},
   {key:'cuisine', label:'Cuisine', lignes:[
     {id:'p20',   label:'Prises 16A 2P+T',        min:6, nf:3, pf:'fil25', pi:'ict20', L:15},
-    {id:'p32',   label:'Prise 32A (four)',        min:1, nf:3, pf:'fil6',  pi:'ict25', L:20},
+    {id:'p32',   label:'Prise 32A (plaque de cuisson)',        min:1, nf:3, pf:'fil6',  pi:'ict25', L:20},
     {id:'lave',  label:'Lave-vaisselle 20A',      min:1, nf:3, pf:'fil25', pi:'ict20', L:20},
     {id:'dcl',   label:'DCL plafond',             min:1, nf:3, pf:'fil15', pi:'ict25', L:10},
     {id:'hott',  label:'Hotte circuit dedie',     min:1, nf:3, pf:'fil15', pi:'ict20', L:15},
-    {id:'frig',  label:'Refrigerateur 20A',       min:1, nf:3, pf:'fil25', pi:'ict20', L:15},
+    {id:'frig',  label:'Specialisee 20A',       min:1, nf:3, pf:'fil25', pi:'ict20', L:15},
     {id:'bp',    label:'Simple allumage / BP',    min:1, nf:2, pf:'fil15', pi:'ict20', L:10},
     {id:'vv',    label:'Va-et-vient',             min:0, nf:3, pf:'fil15', pi:'ict20', L:12},
     {id:'vr',    label:'Volet roulant',           min:0, nf:3, pf:'fil15', pi:'ict20', L:20},
@@ -252,7 +252,7 @@ var DIVERS = [
 var LIGNES_DIRECTES = [
   {id:'chaud', label:'Liaison Chaudiere / cumulus',  min:0, nf:4, pf:'fil25',   pi:'ict20', L:20},
   {id:'clim',  label:'Liaison Groupe ext. clim',     min:0, nf:3, pf:'fil6',    pi:'ict25', L:20},
-  {id:'vmc',   label:'Liaison VMC',                  min:0, nf:3, pf:'fil15',   pi:'ict20', L:20},
+  {id:'vmc',   label:'Liaison VMC',                  min:1, nf:3, pf:'fil15',   pi:'ict20', L:20},
   {id:'tv',    label:'Prise TV / grade 3',           min:0, nf:1, pf:'grad3tv', pi:'ict20', L:20},
   {id:'p20',   label:'Prises 20A',                   min:0, nf:3, pf:'fil25',   pi:'ict20', L:20},
   {id:'sonn',  label:'Sonnerie',                      min:0, nf:3, pf:'fil15',   pi:'ict20', L:20}
@@ -765,9 +765,11 @@ function buildAll(){
     if(key==='garage'  || key==='cellier' || key==='bureau') continue;
     cont.appendChild(makePiece(key, PIECES[i].label, PIECES[i].lignes));
   }
-  for(var i=0; i<nbGarage;  i++) cont.appendChild(makePiece('garage'+(nbGarage>1?i+1:''),  nbGarage>1?'Garage '+(i+1):'Garage',   PIECES.find(function(p){return p.key==='garage';}).lignes));
-  for(var i=0; i<nbCellier; i++) cont.appendChild(makePiece('cellier'+(nbCellier>1?i+1:''), nbCellier>1?'Cellier '+(i+1):'Cellier', PIECES.find(function(p){return p.key==='cellier';}).lignes));
-  for(var i=0; i<nbBureau;  i++) cont.appendChild(makePiece('bureau'+(nbBureau>1?i+1:''),   nbBureau>1?'Bureau '+(i+1):'Bureau',   PIECES.find(function(p){return p.key==='bureau';}).lignes));
+  function findPiece(key){ for(var j=0;j<PIECES.length;j++){ if(PIECES[j].key===key) return PIECES[j]; } return null; }
+  var pGarage=findPiece('garage'); var pCellier=findPiece('cellier'); var pBureau=findPiece('bureau');
+  for(var i=0; i<nbGarage;  i++) if(pGarage)  cont.appendChild(makePiece('garage' +(nbGarage >1?i+1:''), nbGarage >1?'Garage ' +(i+1):'Garage',  pGarage.lignes));
+  for(var i=0; i<nbCellier; i++) if(pCellier) cont.appendChild(makePiece('cellier'+(nbCellier>1?i+1:''), nbCellier>1?'Cellier '+(i+1):'Cellier', pCellier.lignes));
+  for(var i=0; i<nbBureau;  i++) if(pBureau)  cont.appendChild(makePiece('bureau' +(nbBureau >1?i+1:''), nbBureau >1?'Bureau ' +(i+1):'Bureau',  pBureau.lignes));
 
   // WC multiples
   var nbWc = parseInt(document.getElementById('nb_wc') ? document.getElementById('nb_wc').value : 1)||0;
@@ -935,4 +937,5 @@ updateBoitesDistri();
 </div>
 </body>
 </html>
+
 
