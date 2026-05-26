@@ -1,4 +1,6 @@
 
+
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -100,6 +102,8 @@
   /* Infos chantier */
   .infos-bar{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:12px 16px;margin-bottom:16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
   @media print {
+    @page { margin: 10mm; }
+    a[href]:after { content: none !important; }
     /* Reset */
     body{ background:white; padding:8px 12px; font-family:Arial,sans-serif; font-size:9pt; }
 
@@ -332,6 +336,8 @@
   <div id="btn_bar" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:20px 0 40px 0">
     <button onclick="sauvegarderC15()" style="background:transparent;border:1px solid var(--input-border);border-radius:4px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:10px 18px;cursor:pointer">&#128190; Sauvegarder</button>
     <button onclick="ouvrirListeEtudes()" style="background:transparent;border:1px solid var(--input-border);border-radius:4px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:10px 18px;cursor:pointer">&#128193; Mes etudes</button>
+    <button onclick="exporterFichier()" style="background:transparent;border:1px solid var(--accent2);border-radius:4px;color:var(--accent2);font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:10px 18px;cursor:pointer">&#128229; Export fichier</button>
+    <label style="background:transparent;border:1px solid var(--accent2);border-radius:4px;color:var(--accent2);font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:10px 18px;cursor:pointer">&#128228; Import fichier<input type="file" id="inp_import_json" accept=".json" style="display:none" onchange="importerFichier(event)"></label>
     <button onclick="nouveauC15()" style="background:transparent;border:1px solid var(--input-border);border-radius:4px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:10px 18px;cursor:pointer">&#10005; Nouveau</button>
     <button onclick="imprimerPDF()" class="no-print" style="background:#5577aa;border:none;border-radius:4px;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 20px;cursor:pointer">&#128438; PDF</button>
     <button onclick="exportExcel()" class="no-print" style="background:#1D9E75;border:none;border-radius:4px;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 20px;cursor:pointer">&#128202; Excel</button>
@@ -635,6 +641,35 @@ function ouvrirListeEtudes(){
 function fermerModal(){
   var m=document.getElementById('modal-etudes');
   if(m) m.classList.remove('open');
+}
+
+function exporterFichier(){
+  var clientEl=document.getElementById('p_client');
+  var client=clientEl?(clientEl.value.trim()||'etude'):'etude';
+  var date=new Date().toISOString().slice(0,10);
+  var state=collectState();
+  state._nom=client;
+  state._date=new Date().toLocaleDateString('fr-FR');
+  var blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='C15_'+client.replace(/[^a-zA-Z0-9_-]/g,'_')+'_'+date+'.json';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(a.href);
+}
+
+function importerFichier(event){
+  var file=event.target.files[0];
+  if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var state=JSON.parse(e.target.result);
+      applyState(state);
+    }catch(err){ alert('Fichier invalide.'); }
+  };
+  reader.readAsText(file);
+  event.target.value='';
 }
 
 function nouveauC15(){
@@ -1323,6 +1358,10 @@ function imprimerPDF(){
     if(mn===0 && qty===0){ rows[i].style.display='none'; rows[i].setAttribute('data-ph','1'); }
   }
   setTimeout(function(){
+    if(!window._printWarned){
+      window._printWarned=true;
+      alert('Dans la fenetre impression : decochez "En-tetes et pieds de page" pour masquer les URL.');
+    }
     window.print();
     setTimeout(function(){
       var rs=document.querySelectorAll('[data-ph="1"]');
@@ -1468,6 +1507,12 @@ renderLignesExtra('appareillage');
 </div>
 </body>
 </html>
+
+
+
+
+
+
 
 
 
