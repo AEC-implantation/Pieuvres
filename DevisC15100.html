@@ -1,6 +1,4 @@
 
-
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -102,8 +100,6 @@
   /* Infos chantier */
   .infos-bar{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:12px 16px;margin-bottom:16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
   @media print {
-    @page { margin: 10mm; }
-    a[href]:after { content: none !important; }
     /* Reset */
     body{ background:white; padding:8px 12px; font-family:Arial,sans-serif; font-size:9pt; }
 
@@ -138,6 +134,9 @@
     .extra-section .extra-row > input.extra-num:nth-child(3) { font-size:8.5pt; }
     .extra-header-row > div:nth-child(3){ display:none !important; }
     .extra-num[placeholder="PA"]{ display:none !important; }
+
+    /* Masquer transport en impression */
+    #section-transport { display:none !important; }
 
     /* Totaux HT et TTC seulement */
     .recap { display:block !important; border:1px solid #ccc; border-radius:4px; margin-top:8px; page-break-inside:avoid; }
@@ -203,6 +202,27 @@
           <div class="trow"><label>U1000 1.5mm2</label><input type="number" class="pi" id="t_u1000_15" value="0.95" min="0" step="0.01" oninput="recalc()"></div>
           <div class="trow"><label>Coax</label><input type="number" class="pi" id="t_coax" value="0.20" min="0" step="0.01" oninput="recalc()"></div>
         </div>
+        <div class="tgrp">
+          <div class="tgrp-title">Tableau EUR (PA)</div>
+          <div class="trow"><label>Studio</label><input type="number" class="pi" id="t_tab_studio" value="250" min="0" step="1" oninput="recalc()" style="width:72px"></div>
+          <div class="trow"><label>Type 1</label><input type="number" class="pi" id="t_tab_t1" value="260" min="0" step="1" oninput="recalc()" style="width:72px"></div>
+          <div class="trow"><label>Type 2</label><input type="number" class="pi" id="t_tab_t2" value="280" min="0" step="1" oninput="recalc()" style="width:72px"></div>
+          <div class="trow"><label>Type 3</label><input type="number" class="pi" id="t_tab_t3" value="300" min="0" step="1" oninput="recalc()" style="width:72px"></div>
+          <div class="trow"><label>Type 4</label><input type="number" class="pi" id="t_tab_t4" value="360" min="0" step="1" oninput="recalc()" style="width:72px"></div>
+          <div class="trow"><label>Type 5</label><input type="number" class="pi" id="t_tab_t5" value="410" min="0" step="1" oninput="recalc()" style="width:72px"></div>
+        </div>
+        <div class="tgrp">
+          <div class="tgrp-title">Transport EUR (PA mat.)</div>
+          <div class="trow"><label>Zone 1</label><input type="number" class="pi" id="t_trsp_z1" value="50" min="0" step="1" oninput="recalc()" style="width:72px"></div>
+          <div class="trow"><label>Zone 2</label><input type="number" class="pi" id="t_trsp_z2" value="80" min="0" step="1" oninput="recalc()" style="width:72px"></div>
+          <div class="trow"><label>Zone 3</label><input type="number" class="pi" id="t_trsp_z3" value="110" min="0" step="1" oninput="recalc()" style="width:72px"></div>
+          <div class="trow"><label>Zone 4</label><input type="number" class="pi" id="t_trsp_z4" value="130" min="0" step="1" oninput="recalc()" style="width:72px"></div>
+          <div class="trow"><label>Zone 5</label><input type="number" class="pi" id="t_trsp_z5" value="150" min="0" step="1" oninput="recalc()" style="width:72px"></div>
+        </div>
+        <div class="tgrp">
+          <div class="tgrp-title">GTL EUR (PA)</div>
+          <div class="trow"><label>Goulotte GTL</label><input type="number" class="pi" id="t_gtl" value="100" min="0" step="1" oninput="recalc()" style="width:72px"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -247,6 +267,11 @@
       <option value="oui">Oui</option>
       <option value="non">Non</option>
     </select>
+    <span class="p-label">GTL</span>
+    <select id="opt_gtl" style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:600;padding:3px 8px;outline:none" onchange="toggleGTL()">
+      <option value="oui">Oui</option>
+      <option value="non">Non</option>
+    </select>
     <span class="p-label" style="margin-left:12px">Prix heure MO (€)</span>
     <input type="number" class="pi" id="p_heure" value="45" min="0" step="1" oninput="recalc()" onchange="recalc()">
     <span class="p-label">Coef matière</span>
@@ -271,8 +296,20 @@
   <div class="extra-section" id="section-tableau">
     <div class="extra-hdr"><span class="tag">T</span><h3>Tableau électrique</h3></div>
     <div class="extra-body">
-      <div id="tab-simple-row" style="display:grid;grid-template-columns:1fr 110px 110px;gap:12px;align-items:center;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)">
+      <div id="tab-simple-row" style="display:grid;grid-template-columns:1fr 130px 110px 110px;gap:12px;align-items:center;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)">
         <span style="font-size:.8rem;color:var(--muted)">Tableau électrique</span>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+          <span style="font-size:.68rem;color:var(--muted)">Type</span>
+          <select id="tab_type" onchange="onTabTypeChange()" style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.78rem;font-weight:600;padding:3px 6px;outline:none;width:120px">
+            <option value="">— libre —</option>
+            <option value="studio">Studio</option>
+            <option value="t1">Type 1</option>
+            <option value="t2">Type 2</option>
+            <option value="t3">Type 3</option>
+            <option value="t4">Type 4</option>
+            <option value="t5">Type 5</option>
+          </select>
+        </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
           <span style="font-size:.68rem;color:var(--muted)">PA (€)</span>
           <input type="number" id="tab_pa_inp" class="extra-num" value="0" min="0" step="0.01" oninput="recalc();" onchange="recalc();" style="width:100px">
@@ -313,6 +350,41 @@
     </div>
   </div>
 
+  <!-- GTL -->
+  <div class="extra-section" id="section-gtl">
+    <div class="extra-hdr"><span class="tag" style="background:#4a90d9">G</span><h3>GTL — Goulotte technique de logement</h3></div>
+    <div class="extra-body">
+      <div style="display:grid;grid-template-columns:1fr 110px 110px;gap:12px;align-items:center;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)">
+        <span style="font-size:.8rem;color:var(--muted)">Goulotte GTL avec couvercle</span>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+          <span style="font-size:.68rem;color:var(--muted)">PA (€)</span>
+          <input type="number" id="gtl_pa_inp" class="extra-num" value="65" min="0" step="1" oninput="recalc();" onchange="recalc();" style="width:100px">
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+          <span style="font-size:.68rem;color:var(--muted)">PV libre (€)</span>
+          <input type="number" id="gtl_pv_inp" class="extra-num" value="99" min="0" step="1" oninput="recalc();" onchange="recalc();" style="width:100px;color:var(--accent2)">
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;font-size:.78rem;color:var(--muted)">
+        <span>Temps pose MO (min)</span>
+        <input type="number" id="gtl_min" class="extra-num" value="18" min="0" step="1" oninput="recalc();" style="width:70px;color:var(--text)">
+        <span style="margin-left:auto;font-size:.72rem">Tarif MO = prix heure / 60 × minutes</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transport -->
+  <div class="extra-section" id="section-transport">
+    <div class="extra-hdr"><span class="tag" style="background:#888">T</span><h3>Transport</h3></div>
+    <div class="extra-body">
+      <div style="display:grid;grid-template-columns:2fr 80px 80px 80px;gap:8px;align-items:center;margin-bottom:6px;font-size:.68rem;color:var(--muted)">
+        <div>Zone</div><div style="text-align:center">Qté</div><div style="text-align:right">PV auto (€)</div><div style="text-align:right">PV forcé (€)</div>
+      </div>
+      <div id="rows-transport"></div>
+      <div style="margin-top:8px;font-size:.72rem;color:var(--muted)">PV = PA matière × coef + 30 min MO. Saisir PV forcé pour écraser.</div>
+    </div>
+  </div>
+
   <!-- Récap -->
   <div class="recap">
     <div class="rh"><span>R</span><h2>Récapitulatif</h2></div>
@@ -322,11 +394,12 @@
     <div class="rrow"><span class="rl">Appareillage auto (vente)</span><span class="rv" id="r_app_auto_vente">—</span></div>
     <div class="rrow"><span class="rl">Appareillage suppl. (achat)</span><span class="rv" id="r_app_achat">—</span></div>
     <div class="rrow"><span class="rl">Appareillage suppl. (vente)</span><span class="rv" id="r_app_vente">—</span></div>
+    <div class="rrow"><span class="rl">GTL (vente)</span><span class="rv" id="r_gtl_vente">—</span></div>
+    <div class="rrow"><span class="rl">Transport (vente)</span><span class="rv" id="r_trsp_vente">—</span></div>
     <div class="rrow"><span class="rl">Total points électriques</span><span class="rv" id="r_pts">—</span></div>
     <div class="rrow"><span class="rl">Total matière brute</span><span class="rv" id="r_mat">—</span></div>
     <div class="rrow"><span class="rl">Matière facturée (coef)</span><span class="rv" id="r_matf">—</span></div>
     <div class="rrow"><span class="rl">Main d'oeuvre</span><span class="rv" id="r_mo">—</span></div>
-    <div class="rrow"><span class="rl">Transport facturé (€)</span><input type="number" id="r_trsp_input" value="0" min="0" step="10" style="width:90px;text-align:right;background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.85rem;font-weight:600;padding:3px 8px;outline:none;-moz-appearance:textfield" oninput="recalcMarge()" onchange="recalcMarge()"></div>
     <div class="rrow"><span class="rl">Marge</span><span class="rv" style="color:var(--accent)" id="r_marge">—</span></div>
     <div class="rrow tot" ondblclick="modifierPrixHT()" style="cursor:pointer" title="Double-clic pour modifier"><span class="rl">PRIX TOTAL HT</span><span class="rv" id="r_tot_inp">—</span><span id="r_tot" style="display:none">—</span></div>
     <div class="rrow tot" style="border-top:1px solid rgba(240,165,0,.3)"><span class="rl">PRIX TOTAL TTC (TVA 20%)</span><span class="rv" id="r_ttc">—</span></div>
@@ -336,9 +409,10 @@
   <div id="btn_bar" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:20px 0 40px 0">
     <button onclick="sauvegarderC15()" style="background:transparent;border:1px solid var(--input-border);border-radius:4px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:10px 18px;cursor:pointer">&#128190; Sauvegarder</button>
     <button onclick="ouvrirListeEtudes()" style="background:transparent;border:1px solid var(--input-border);border-radius:4px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:10px 18px;cursor:pointer">&#128193; Mes etudes</button>
-    <button onclick="exporterFichier()" style="background:transparent;border:1px solid var(--accent2);border-radius:4px;color:var(--accent2);font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:10px 18px;cursor:pointer">&#128229; Export fichier</button>
-    <label style="background:transparent;border:1px solid var(--accent2);border-radius:4px;color:var(--accent2);font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:10px 18px;cursor:pointer">&#128228; Import fichier<input type="file" id="inp_import_json" accept=".json" style="display:none" onchange="importerFichier(event)"></label>
     <button onclick="nouveauC15()" style="background:transparent;border:1px solid var(--input-border);border-radius:4px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:10px 18px;cursor:pointer">&#10005; Nouveau</button>
+    <button onclick="exporterJSON()" class="no-print" style="background:#2a7fd4;border:none;border-radius:4px;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 20px;cursor:pointer">&#8659; Export JSON</button>
+    <button onclick="importerJSON()" class="no-print" style="background:#2a7fd4;border:none;border-radius:4px;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 20px;cursor:pointer">&#8657; Import JSON</button>
+    <input type="file" id="json_import_input" accept=".json" style="display:none" onchange="chargerFichierJSON(this)">
     <button onclick="imprimerPDF()" class="no-print" style="background:#5577aa;border:none;border-radius:4px;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 20px;cursor:pointer">&#128438; PDF</button>
     <button onclick="exportExcel()" class="no-print" style="background:#1D9E75;border:none;border-radius:4px;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 20px;cursor:pointer">&#128202; Excel</button>
     <button onclick="envoyerC15()" style="background:var(--accent);border:none;border-radius:4px;color:#0f1117;font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 24px;cursor:pointer">&#9993; Envoyer le devis</button>
@@ -359,41 +433,51 @@ var PIECES = [
   {key:'sejour', label:'Sejour / Salon', lignes:[
     {id:'p20',   label:'Prises 16A 2P+T',       min:5, nf:3, pf:'fil25',   pi:'ict20', L:15},
     {id:'dcl',   label:'DCL plafond',            min:1, nf:3, pf:'fil15',   pi:'ict25', L:10},
-    {id:'vv',    label:'Va-et-vient',            min:1, nf:3, pf:'fil15',   pi:'ict20', L:12},
+    {id:'vv',    label:'Va-et-vient (1.5mm2)',   min:1, nf:3, pf:'fil15',   pi:'ict20', L:24},
+    {id:'perm',  label:'Permutateur par point de commande (1.5mm2)', min:0, nf:4, pf:'fil15', pi:'ict20', L:15},
     {id:'bp',    label:'Simple allumage / BP',   min:0, nf:2, pf:'fil15',   pi:'ict20', L:12},
+    {id:'bpv',   label:'Simple allumage a voyant avec neutre (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:12},
     {id:'tv',    label:'Prise TV multimedia',    min:0, nf:1, pf:'grad3tv', pi:'ict20', L:15},
-    {id:'rj',    label:'Prise RJ45 (reseau)',    min:0, nf:1, pf:'coax',    pi:'ict20', L:15},
-    {id:'vr',    label:'Volet roulant',          min:0, nf:3, pf:'fil15',   pi:'ict20', L:20},
-    {id:'chauf', label:'Chauffage electrique',   min:0, nf:4, pf:'fil15',   pi:'ict20', L:20}
+    {id:'rj',    label:'Prises RJ45 Grade 3TV',  min:0, nf:1, pf:'grad3tv', pi:'ict20', L:15},
+    {id:'vr',    label:'Volets roulants elec (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:20},
+    {id:'chauf', label:'Chauffage elec sejour fil pilote (1.5mm2)', min:0, nf:4, pf:'fil15', pi:'ict20', L:20},
+    {id:'therm', label:'Thermostat (1.5mm2)',                        min:0, nf:3, pf:'fil15', pi:'ict20', L:20}
   ]},
   {key:'cuisine', label:'Cuisine', lignes:[
-    {id:'p20',   label:'Prises 16A 2P+T',        min:6, nf:3, pf:'fil25', pi:'ict20', L:15},
-    {id:'p32',   label:'Prise 32A (plaque de cuisson)',        min:1, nf:3, pf:'fil6',  pi:'ict25', L:20},
-    {id:'lave',  label:'Lave-vaisselle 20A',      min:1, nf:3, pf:'fil25', pi:'ict20', L:20},
-    {id:'dcl',   label:'DCL plafond',             min:1, nf:3, pf:'fil15', pi:'ict25', L:10},
-    {id:'hott',  label:'Hotte circuit dedie',     min:1, nf:3, pf:'fil15', pi:'ict20', L:15},
-    {id:'frig',  label:'Specialisee 20A',       min:1, nf:3, pf:'fil25', pi:'ict20', L:15},
-    {id:'bp',    label:'Simple allumage / BP',    min:1, nf:2, pf:'fil15', pi:'ict20', L:10},
-    {id:'vv',    label:'Va-et-vient',             min:0, nf:3, pf:'fil15', pi:'ict20', L:12},
-    {id:'vr',    label:'Volet roulant',           min:0, nf:3, pf:'fil15', pi:'ict20', L:20},
-    {id:'chauf', label:'Chauffage electrique',    min:0, nf:4, pf:'fil15', pi:'ict20', L:20}
+    {id:'p20',   label:'Prises 16A 2P+T',       min:6, nf:3, pf:'fil25', pi:'ict20', L:15},
+    {id:'p32',   label:'Prise 32A (plaque cuisson)', min:1, nf:3, pf:'fil6',  pi:'ict25', L:20},
+    {id:'lave',  label:'Lave-vaisselle 20A',     min:1, nf:3, pf:'fil25', pi:'ict20', L:20},
+    {id:'dcl',   label:'DCL plafond',            min:1, nf:3, pf:'fil15', pi:'ict25', L:10},
+    {id:'hott',  label:'Hotte circuit dedie',    min:1, nf:3, pf:'fil15', pi:'ict20', L:15},
+    {id:'frig',  label:'Prise specialisee 20A',   min:1, nf:3, pf:'fil25', pi:'ict20', L:15},
+    {id:'bp',    label:'Simple allumage / BP',   min:1, nf:2, pf:'fil15', pi:'ict20', L:10},
+    {id:'bpv',   label:'Simple allumage a voyant avec neutre (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:12},
+    {id:'dbl',   label:'Double allumage (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:12},
+    {id:'vv',    label:'Va-et-vient (1.5mm2)',   min:0, nf:3, pf:'fil15', pi:'ict20', L:24},
+    {id:'bpvmc', label:'BP VMC cuisine (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:12},
+    {id:'vr',    label:'Volets roulants elec (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:20},
+    {id:'chauf', label:'Chauffage electrique',   min:0, nf:4, pf:'fil15', pi:'ict20', L:20}
   ]},
   {key:'couloir', label:'Couloir / Degagement', lignes:[
-    {id:'dcl',   label:'DCL plafond',             min:1, nf:3, pf:'fil15', pi:'ict25', L:10},
-    {id:'vv',    label:'Va-et-vient',             min:1, nf:3, pf:'fil15', pi:'ict20', L:12},
-    {id:'p20',   label:'Prise 16A 2P+T',          min:1, nf:3, pf:'fil25', pi:'ict20', L:15}
+    {id:'dcl',   label:'DCL plafond',            min:1, nf:3, pf:'fil15', pi:'ict25', L:10},
+    {id:'vv',    label:'Va-et-vient (1.5mm2)',   min:1, nf:3, pf:'fil15', pi:'ict20', L:24},
+    {id:'p20',   label:'Prise 16A 2P+T',         min:1, nf:3, pf:'fil25', pi:'ict20', L:15},
+    {id:'sonn',  label:'Sonnerie (1.5mm2)',       min:0, nf:3, pf:'fil15', pi:'ict20', L:20},
+    {id:'therm', label:'Thermostat (1.5mm2)',     min:0, nf:3, pf:'fil15', pi:'ict20', L:20}
   ]},
   {key:'garage', label:'Garage', lignes:[
-    {id:'p20',   label:'Prises 16A 2P+T',         min:2, nf:3, pf:'fil25', pi:'ict20', L:15},
-    {id:'dcl',   label:'DCL plafond',              min:1, nf:3, pf:'fil15', pi:'ict25', L:10},
-    {id:'bp',    label:'Simple allumage',          min:1, nf:2, pf:'fil15', pi:'ict20', L:10},
-    {id:'vv',    label:'Va-et-vient',              min:0, nf:3, pf:'fil15', pi:'ict20', L:12},
-    {id:'pdr',   label:'Porte de garage',          min:0, nf:4, pf:'fil25', pi:'ict20', L:20}
+    {id:'p20',   label:'Prises 16A 2P+T',        min:2, nf:3, pf:'fil25', pi:'ict20', L:15},
+    {id:'dcl',   label:'DCL plafond',             min:1, nf:3, pf:'fil15', pi:'ict25', L:10},
+    {id:'bp',    label:'Simple allumage',         min:1, nf:2, pf:'fil15', pi:'ict20', L:10},
+    {id:'vv',    label:'Va-et-vient (1.5mm2)',    min:0, nf:3, pf:'fil15', pi:'ict20', L:24},
+    {id:'pdr',   label:'Porte de garage liaison equip. (2.5mm2)', min:0, nf:4, pf:'fil25', pi:'ict20', L:20}
   ]},
   {key:'exterieur', label:'Exterieur', lignes:[
-    {id:'p20',   label:'Prise 16A ext U1000',     min:1, nf:1, pf:'u1000_25', pi:'ict20', L:15},
-    {id:'dcl',   label:'DCL ext U1000',           min:1, nf:1, pf:'u1000_15', pi:'ict20', L:10},
-    {id:'bp',    label:'Simple allumage',         min:1, nf:2, pf:'fil15',    pi:'ict20', L:12}
+    {id:'pext',  label:'Prises exterieures 16A U1000 RO2V',            min:0, nf:1, pf:'u1000_25', pi:'ict20', L:15},
+    {id:'dclext',label:'Point lumineux exterieur U1000 (1.5mm2)',      min:0, nf:1, pf:'u1000_15', pi:'ict20', L:10},
+    {id:'bp',    label:'Simple allumage',                               min:1, nf:2, pf:'fil15',    pi:'ict20', L:12},
+    {id:'vv',    label:'Va-et-vient (1.5mm2)',                         min:0, nf:3, pf:'fil15',    pi:'ict20', L:24},
+    {id:'vvv',   label:'Va-et-vient a voyant avec neutre (1.5mm2)',    min:0, nf:4, pf:'fil15',    pi:'ict20', L:15}
   ]},
   {key:'cellier', label:'Cellier', lignes:[
     {id:'p20',   label:'Prises 16A 2P+T',         min:2, nf:3, pf:'fil25', pi:'ict20', L:15},
@@ -403,11 +487,10 @@ var PIECES = [
   ]},
   {key:'bureau', label:'Bureau', lignes:[
     {id:'p20',   label:'Prises 16A 2P+T',         min:4, nf:3, pf:'fil25', pi:'ict20', L:15},
-    {id:'rj',    label:'Prise RJ45 (reseau)',      min:0, nf:1, pf:'coax',  pi:'ict20', L:15},
+    {id:'rj',    label:'Prises RJ45 Grade 3TV',    min:0, nf:1, pf:'grad3tv', pi:'ict20', L:15},
     {id:'dcl',   label:'DCL plafond',              min:1, nf:3, pf:'fil15', pi:'ict25', L:10},
-    {id:'bp',    label:'Simple allumage',          min:1, nf:2, pf:'fil15', pi:'ict20', L:10},
-    {id:'vr',    label:'Volet roulant',            min:0, nf:3, pf:'fil15', pi:'ict20', L:20},
-    {id:'chauf', label:'Chauffage electrique',     min:0, nf:4, pf:'fil15', pi:'ict20', L:20}
+    {id:'bp',    label:'Simple allumage',          min:1, nf:2, pf:'fil15', pi:'ict20', L:10}
+    // vr → LD "vr" | chauf → LD "chch"
   ]}
 ];
 
@@ -420,12 +503,16 @@ var DIVERS = [
 ];
 
 var LIGNES_DIRECTES = [
-  {id:'chaud', label:'Liaison Chaudiere / cumulus',  min:0, nf:4, pf:'fil25',   pi:'ict20', L:20},
-  {id:'clim',  label:'Liaison Groupe ext. clim',     min:0, nf:3, pf:'fil6',    pi:'ict25', L:20},
-  {id:'vmc',   label:'Liaison VMC',                  min:0, nf:3, pf:'fil15',   pi:'ict20', L:20},
-  {id:'tv',    label:'Prise TV / grade 3',           min:0, nf:1, pf:'grad3tv', pi:'ict20', L:20},
-  {id:'p20',   label:'Prises 20A',                   min:0, nf:3, pf:'fil25',   pi:'ict20', L:20},
-  {id:'sonn',  label:'Sonnerie',                      min:0, nf:3, pf:'fil15',   pi:'ict20', L:20}
+  {id:'chaud', label:'Chauffe eau liaison equip. (2.5mm2)',          min:0, nf:4, pf:'fil25',    pi:'ict20', L:20},
+  {id:'vmc',   label:'VMC attente combles (1.5mm2)',                 min:0, nf:4, pf:'fil15',    pi:'ict20', L:20},
+  {id:'pdg',   label:'Porte de garage liaison equip. (2.5mm2)',      min:0, nf:4, pf:'fil25',    pi:'ict20', L:20},
+  {id:'pac',   label:'Pompe a chaleur liaison equip. (2.5mm2)',      min:0, nf:3, pf:'fil25',    pi:'ict25', L:20},
+  {id:'clim',  label:'Groupe exterieur clim (6mm2)',                 min:0, nf:3, pf:'fil6',     pi:'ict25', L:20},
+  {id:'therm', label:'Thermostat (1.5mm2)',                          min:0, nf:3, pf:'fil15',    pi:'ict20', L:20},
+  {id:'div15', label:'Alimentation diverse 3g1.5mm2',                min:0, nf:3, pf:'fil15',    pi:'ict20', L:20},
+  {id:'div25', label:'Alimentation diverse 3g2.5mm2',                min:0, nf:3, pf:'fil25',    pi:'ict20', L:20},
+  {id:'div6',  label:'Alimentation diverse 3g6mm2',                  min:0, nf:3, pf:'fil6',     pi:'ict25', L:20},
+  {id:'div415',label:'Alimentation diverse 4g1.5mm2',                min:0, nf:4, pf:'fil15',    pi:'ict20', L:20}
 ];
 
 var WC_LIGNES = [
@@ -437,20 +524,22 @@ var WC_LIGNES = [
 var CHAMBRE = [
   {id:'p20',   label:'Prises 16A 2P+T',           min:3, nf:3, pf:'fil25', pi:'ict20', L:15},
   {id:'dcl',   label:'DCL plafond',               min:1, nf:3, pf:'fil15', pi:'ict25', L:10},
-  {id:'rj',    label:'Prise RJ45 (reseau)',        min:0, nf:1, pf:'coax',  pi:'ict20', L:15},
-  {id:'vv',    label:'Va-et-vient',               min:1, nf:3, pf:'fil15', pi:'ict20', L:12},
-  {id:'bp',    label:'Simple allumage / BP',      min:0, nf:2, pf:'fil15', pi:'ict20', L:10},
-  {id:'vr',    label:'Volet roulant',             min:0, nf:3, pf:'fil15', pi:'ict20', L:20},
-  {id:'chauf', label:'Chauffage electrique',      min:0, nf:4, pf:'fil15', pi:'ict20', L:20}
+  {id:'rj',    label:'Prises RJ45 Grade 3TV',      min:0, nf:1, pf:'grad3tv', pi:'ict20', L:15},
+  {id:'vv',    label:'Va-et-vient (1.5mm2)',       min:1, nf:3, pf:'fil15', pi:'ict20', L:24},
+  {id:'bp',    label:'Simple allumage / BP',       min:0, nf:2, pf:'fil15', pi:'ict20', L:10},
+  {id:'vr',    label:'Volets roulants elec (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:20},
+  {id:'chauf', label:'Chauffage elec chambre fil pilote (1.5mm2)', min:0, nf:4, pf:'fil15', pi:'ict20', L:20},
+  {id:'therm', label:'Thermostat (1.5mm2)',        min:0, nf:3, pf:'fil15', pi:'ict20', L:20}
 ];
 
 var SDB = [
   {id:'p20',   label:'Prise 16A hors volume',     min:1, nf:3, pf:'fil25', pi:'ict20', L:15},
   {id:'dcl',   label:'DCL plafond',               min:1, nf:3, pf:'fil15', pi:'ict25', L:10},
   {id:'bp',    label:'Simple allumage / BP',      min:1, nf:2, pf:'fil15', pi:'ict20', L:8},
-  {id:'vv',    label:'Va-et-vient',               min:0, nf:3, pf:'fil15', pi:'ict20', L:12},
-  {id:'ss',    label:'Seche-serviette',           min:0, nf:4, pf:'fil15', pi:'ict20', L:20},
-  {id:'vr',    label:'Volet roulant',             min:0, nf:3, pf:'fil15', pi:'ict20', L:20}
+  {id:'dbl',   label:'Double allumage (1.5mm2)',  min:0, nf:3, pf:'fil15', pi:'ict20', L:12},
+  {id:'vv',    label:'Va-et-vient (1.5mm2)',      min:0, nf:3, pf:'fil15', pi:'ict20', L:24},
+  {id:'ss',    label:'Seche-serviettes fil pilote (1.5mm2)', min:0, nf:4, pf:'fil15', pi:'ict20', L:20},
+  {id:'vr',    label:'Volets roulants elec (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:20}
 ];
 
 function calcPU(l, lid){
@@ -641,35 +730,6 @@ function ouvrirListeEtudes(){
 function fermerModal(){
   var m=document.getElementById('modal-etudes');
   if(m) m.classList.remove('open');
-}
-
-function exporterFichier(){
-  var clientEl=document.getElementById('p_client');
-  var client=clientEl?(clientEl.value.trim()||'etude'):'etude';
-  var date=new Date().toISOString().slice(0,10);
-  var state=collectState();
-  state._nom=client;
-  state._date=new Date().toLocaleDateString('fr-FR');
-  var blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
-  var a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='C15_'+client.replace(/[^a-zA-Z0-9_-]/g,'_')+'_'+date+'.json';
-  document.body.appendChild(a); a.click();
-  document.body.removeChild(a); URL.revokeObjectURL(a.href);
-}
-
-function importerFichier(event){
-  var file=event.target.files[0];
-  if(!file) return;
-  var reader=new FileReader();
-  reader.onload=function(e){
-    try{
-      var state=JSON.parse(e.target.result);
-      applyState(state);
-    }catch(err){ alert('Fichier invalide.'); }
-  };
-  reader.readAsText(file);
-  event.target.value='';
 }
 
 function nouveauC15(){
@@ -877,15 +937,13 @@ function recalcMarge(){
   var matEl  = document.getElementById('r_mat');
   var moEl   = document.getElementById('r_mo');
   var matfEl = document.getElementById('r_matf');
-  var trspEl = document.getElementById('r_trsp_input');
 
   var mat    = matEl  ? (parseFloat(matEl.textContent)||0)  : 0;
   var mo     = moEl   ? (parseFloat(moEl.textContent)||0)   : 0;
   var matf   = matfEl ? (parseFloat(matfEl.textContent)||0) : 0;
-  var trspFact = trspEl ? (parseFloat(trspEl.value)||0) : 0;
 
-  // Prix total = matière facturée + MO + transport facturé
-  var newTotal = matf + mo + trspFact;
+  // Prix total = matière facturée + MO
+  var newTotal = matf + mo;
   var totEl = document.getElementById('r_tot');
   if(totEl) totEl.textContent = newTotal.toFixed(2)+' EUR';
 
@@ -894,12 +952,8 @@ function recalcMarge(){
   var tempsH = heureV > 0 ? mo/heureV : 0;
   var coutReelMO = tempsH * (heureV - 17);
 
-  // Coût réel transport (PU dans divers, qté=1)
-  var trspPuEl = document.getElementById('divers_trsp_pu');
-  var trspCout = trspPuEl ? (parseFloat(trspPuEl.value)||0) : 0;
-
-  // Marge = PV - matière brute - coût réel MO - coût réel transport
-  var marge = newTotal - mat - coutReelMO - trspCout;
+  // Marge = PV - matière brute - coût réel MO
+  var marge = newTotal - mat - coutReelMO;
   var margeP = newTotal > 0 ? (marge/newTotal*100).toFixed(1) : '0';
   var margeEl = document.getElementById('r_marge');
   if(margeEl) margeEl.textContent = marge.toFixed(2)+' EUR ('+margeP+'%)';
@@ -974,6 +1028,15 @@ function toggleAppareillage(){
   recalc();
 }
 
+function toggleGTL(){
+  var val = document.getElementById('opt_gtl') ? document.getElementById('opt_gtl').value : 'oui';
+  var sec = document.getElementById('section-gtl');
+  if(sec) sec.style.display = val==='oui' ? 'block' : 'none';
+  var rrow = document.getElementById('r_gtl_vente');
+  if(rrow && rrow.parentNode) rrow.parentNode.style.display = val==='oui' ? 'flex' : 'none';
+  recalc();
+}
+
 function modifierPrixHT(){
   var el=document.getElementById('r_tot_inp');
   var current=el?el.textContent.replace(' EUR','').replace(',','.').trim():'0';
@@ -1006,17 +1069,15 @@ function recalcTTCCore(ht){
   var tabAEl=document.getElementById('r_tab_achat');
   var appAEl=document.getElementById('r_app_auto_achat');
   var appSEl=document.getElementById('r_app_achat');
-  var trspEl=document.getElementById('r_trsp_input');
   var mat=matEl?(parseFloat(matEl.textContent)||0):0;
   var mo=moEl?(parseFloat(moEl.textContent)||0):0;
   var tabA=tabAEl?(parseFloat(tabAEl.textContent)||0):0;
   var appA=appAEl?(parseFloat(appAEl.textContent)||0):0;
   var appS=appSEl?(parseFloat(appSEl.textContent)||0):0;
-  var trsp=trspEl?(parseFloat(trspEl.value)||0):0;
   var heureV=parseFloat(document.getElementById('p_heure').value)||45;
   var moH=mo>0&&heureV>0?mo/heureV:0;
   var coutMO=moH*27;
-  var marge=ht-mat-tabA-appA-appS-coutMO-trsp;
+  var marge=ht-mat-tabA-appA-appS-coutMO;
   var margeP=ht>0?(marge/ht*100).toFixed(1):'0';
   var margeEl=document.getElementById('r_marge');
   if(margeEl) margeEl.textContent=marge.toFixed(2)+' EUR ('+margeP+'%)';
@@ -1293,18 +1354,28 @@ function recalc(){
   var resApp = calcExtra(_lignesAppareillage);
   matFact += (optTab==='oui'?tabPv:0) + (optApp==='oui'?resApp.vente:0) + autoPV;
 
-  var total = matFact + moFact + totTransport;
+  // GTL
+  var gtlRes = recalcGTL();
+  var gtlAchat = gtlRes ? gtlRes.achat : 0;
+  var gtlVente = gtlRes ? gtlRes.vente : 0;
+  matFact += gtlVente;
+
+  // Transport zones
+  var trspVente = calcTransport();
+  matFact += trspVente;
+
+  var total = matFact + moFact;
   var coutReelMO = (totTemps/60) * 27;
-  // Marge = PV - matiere brute - achat tableau - achat appareillage - cout reel MO - transport
+  // Marge = PV - matiere brute - achat tableau - achat appareillage - cout reel MO - GTL achat - transport (PA = PV)
   var appSupPV = optApp==='oui' ? resApp.vente : 0;
   var appSupPA = optApp==='oui' ? resApp.achat : 0;
-  var marge = total - totMat - (optTab==='oui'?tabPa:0) - autoPAForMarge - appSupPA - coutReelMO - totTransport;
+  var marge = total - totMat - (optTab==='oui'?tabPa:0) - autoPAForMarge - appSupPA - coutReelMO - gtlAchat - trspVente;
   var margeP = total > 0 ? (marge/total*100).toFixed(1) : '0';
 
   function sv(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
   function fmt2(v){return v.toFixed(2)+' EUR';}
-  // Prix vente pieuvre = matière facturée AVANT tableau/appareillage
-  var pvPieuvre = (totMat * coefV) + moFact + totTransport;
+  // Prix vente pieuvre = matière facturée AVANT tableau/appareillage/GTL/transport
+  var pvPieuvre = (totMat * coefV) + moFact;
   var elPvP = document.getElementById('pv_pieuvre');
   if(elPvP) elPvP.textContent = pvPieuvre.toFixed(2)+' EUR';
   sv('r_tab_achat', fmt2(tabPa));
@@ -1313,14 +1384,13 @@ function recalc(){
   sv('r_app_auto_vente', fmt2(autoPV));
   sv('r_app_achat', fmt2(resApp.achat));
   sv('r_app_vente', fmt2(resApp.vente));
+  sv('r_gtl_vente', fmt2(gtlVente));
+  sv('r_trsp_vente', fmt2(trspVente));
 
   sv('r_pts',   totPts+' points');
   sv('r_mat',   totMat.toFixed(2)+' EUR');
   sv('r_matf',  matFact.toFixed(2)+' EUR (x'+coefV.toFixed(2)+')');
   sv('r_mo',    moFact.toFixed(2)+' EUR');
-  // Pré-remplir transport facturé si encore à 0
-  var trspInput=document.getElementById('r_trsp_input');
-  if(trspInput && (+trspInput.value===0) && totTransport>0) trspInput.value=totTransport.toFixed(2);
   sv('r_marge', marge.toFixed(2)+' EUR ('+margeP+'%)');
   sv('r_tot', total.toFixed(2)+' EUR');
   var rtInp=document.getElementById('r_tot_inp');
@@ -1341,6 +1411,93 @@ function findLine(lid){
   return null;
 }
 
+// ---- Tableau par type ----
+function onTabTypeChange(){
+  var sel=document.getElementById('tab_type');
+  if(!sel||!sel.value) return;
+  var paEl=document.getElementById('tab_pa_inp');
+  var paVal=parseFloat(document.getElementById('t_tab_'+sel.value)?document.getElementById('t_tab_'+sel.value).value:0)||0;
+  if(paEl){ paEl.value=paVal.toFixed(2); }
+  var pvEl=document.getElementById('tab_pv_inp');
+  if(pvEl && !pvEl.dataset.userSet){ pvEl.value=(paVal*coef()).toFixed(2); }
+  recalc();
+}
+
+// ---- GTL ----
+function recalcGTL(){
+  var optGtl = document.getElementById('opt_gtl') ? document.getElementById('opt_gtl').value : 'oui';
+  if(optGtl==='non') return {achat:0, vente:0};
+  var paEl=document.getElementById('gtl_pa_inp');
+  var minEl=document.getElementById('gtl_min');
+  var pvInpEl=document.getElementById('gtl_pv_inp');
+  if(!paEl) return {achat:0, vente:0};
+  var pa=parseFloat(paEl.value)||0;
+  var mins=parseFloat(minEl?minEl.value:18)||18;
+  var pvAuto=pa*coef()+(mins/60)*heure();
+  var pvForce=pvInpEl&&pvInpEl.value!==''?parseFloat(pvInpEl.value):null;
+  var pv=pvForce!==null?pvForce:pvAuto;
+  return {achat:pa, vente:pv};
+}
+
+// ---- Transport zones ----
+var TRANSPORT_ZONES = [
+  {id:'z1', label:'Zone 1'},
+  {id:'z2', label:'Zone 2'},
+  {id:'z3', label:'Zone 3'},
+  {id:'z4', label:'Zone 4'},
+  {id:'z5', label:'Zone 5'}
+];
+
+function renderTransport(){
+  var cont=document.getElementById('rows-transport');
+  if(!cont) return;
+  cont.innerHTML='';
+  for(var i=0;i<TRANSPORT_ZONES.length;i++){
+    (function(z){
+      var row=document.createElement('div');
+      row.style.cssText='display:grid;grid-template-columns:2fr 80px 80px 80px;gap:8px;align-items:center;margin-bottom:6px';
+      var lbl=document.createElement('span');
+      lbl.style.cssText='font-size:.8rem;color:var(--muted)';
+      lbl.textContent=z.label;
+      var inpQ=document.createElement('input');
+      inpQ.type='number'; inpQ.className='extra-num'; inpQ.id='trsp_'+z.id+'_q';
+      inpQ.value=0; inpQ.min=0; inpQ.step=1; inpQ.style.textAlign='center';
+      inpQ.addEventListener('input',function(){recalc();});
+      var pvAutoEl=document.createElement('span');
+      pvAutoEl.style.cssText='text-align:right;font-family:"IBM Plex Mono",monospace;font-size:.78rem;font-weight:700;color:var(--accent2)';
+      pvAutoEl.id='trsp_'+z.id+'_pvauto';
+      pvAutoEl.textContent='—';
+      var inpPVF=document.createElement('input');
+      inpPVF.type='number'; inpPVF.className='extra-num'; inpPVF.id='trsp_'+z.id+'_pvforce';
+      inpPVF.value=''; inpPVF.min=0; inpPVF.step=1; inpPVF.placeholder='forcé';
+      inpPVF.style.textAlign='right';
+      inpPVF.addEventListener('input',function(){recalc();});
+      row.appendChild(lbl); row.appendChild(inpQ); row.appendChild(pvAutoEl); row.appendChild(inpPVF);
+      cont.appendChild(row);
+    })(TRANSPORT_ZONES[i]);
+  }
+}
+
+function calcTransport(){
+  var totVente=0;
+  for(var i=0;i<TRANSPORT_ZONES.length;i++){
+    var z=TRANSPORT_ZONES[i];
+    var qEl=document.getElementById('trsp_'+z.id+'_q');
+    var pvfEl=document.getElementById('trsp_'+z.id+'_pvforce');
+    var pvAutoEl=document.getElementById('trsp_'+z.id+'_pvauto');
+    var q=parseFloat(qEl?qEl.value:0)||0;
+    if(q===0){ if(pvAutoEl) pvAutoEl.textContent='—'; continue; }
+    var tKey='t_trsp_'+z.id;
+    var paUnit=parseFloat(document.getElementById(tKey)?document.getElementById(tKey).value:0)||0;
+    var pvAuto=paUnit*coef()+(30/60)*heure();
+    if(pvAutoEl) pvAutoEl.textContent=(pvAuto*q).toFixed(2)+' €';
+    var pvForce=pvfEl&&pvfEl.value!==''?parseFloat(pvfEl.value):null;
+    var pv=(pvForce!==null?pvForce:pvAuto)*q;
+    totVente+=pv;
+  }
+  return totVente;
+}
+
 function imprimerPDF(){
   var cl=document.getElementById('p_client');
   var se=document.getElementById('p_surface');
@@ -1358,10 +1515,6 @@ function imprimerPDF(){
     if(mn===0 && qty===0){ rows[i].style.display='none'; rows[i].setAttribute('data-ph','1'); }
   }
   setTimeout(function(){
-    if(!window._printWarned){
-      window._printWarned=true;
-      alert('Dans la fenetre impression : decochez "En-tetes et pieds de page" pour masquer les URL.');
-    }
     window.print();
     setTimeout(function(){
       var rs=document.querySelectorAll('[data-ph="1"]');
@@ -1492,10 +1645,139 @@ function exportExcelCore(){
 
 }
 
+// ===================== EXPORT / IMPORT JSON =====================
+
+function exporterJSON(){
+  var data = {};
+
+  // -- Paramètres globaux --
+  var ids = ['p_client','p_surface','p_etages','nb_ch','nb_sdb','nb_wc','nb_garage','nb_cellier','nb_bureau',
+             'p_heure','p_coef','opt_tab','opt_app',
+             't_fil15','t_fil25','t_fil6','t_ict20','t_ict25','t_ict40',
+             't_grad3tv','t_u1000_25','t_u1000_15','t_coax',
+             't_tab_studio','t_tab_t1','t_tab_t2','t_tab_t3','t_tab_t4','t_tab_t5',
+             't_trsp_z1','t_trsp_z2','t_trsp_z3','t_trsp_z4','t_trsp_z5','t_gtl',
+             'tab_type','tab_pa_inp','tab_pv_inp','gtl_pa_inp','gtl_min'];
+  data.params = {};
+  ids.forEach(function(id){
+    var el = document.getElementById(id);
+    if(!el) return;
+    data.params[id] = el.value;
+    if(el.dataset && el.dataset.userSet) data.params[id+'__userSet'] = el.dataset.userSet;
+  });
+
+  // -- Quantités pièces --
+  data.pieces = {};
+  document.querySelectorAll('input[id^="q_"]').forEach(function(el){ data.pieces[el.id] = el.value; });
+
+  // -- Transport zones --
+  data.transport = {};
+  ['z1','z2','z3','z4','z5'].forEach(function(z){
+    ['q','pvforce'].forEach(function(f){
+      var el = document.getElementById('trsp_'+z+'_'+f);
+      if(el) data.transport['trsp_'+z+'_'+f] = el.value;
+    });
+  });
+
+  // -- Lignes directes --
+  data.ld = {};
+  document.querySelectorAll('input[id^="ld_"]').forEach(function(el){ data.ld[el.id] = el.value; });
+
+  // -- Appareillage extra --
+  data.appareillage = {};
+  document.querySelectorAll('input[id^="app_"]').forEach(function(el){
+    data.appareillage[el.id] = el.value;
+    if(el.dataset && el.dataset.userSet) data.appareillage[el.id+'__userSet'] = el.dataset.userSet;
+  });
+
+  // -- Tableau extra --
+  data.tableau = {};
+  document.querySelectorAll('input[id^="tab_"]').forEach(function(el){
+    data.tableau[el.id] = el.value;
+    if(el.dataset && el.dataset.userSet) data.tableau[el.id+'__userSet'] = el.dataset.userSet;
+  });
+
+  // -- Prix total HT si modifié --
+  var rtInp = document.getElementById('r_tot_inp');
+  if(rtInp) data.r_tot_inp = { text: rtInp.textContent, userSet: (rtInp.dataset||{}).userSet||'' };
+
+  data._version = '2';
+  data._date = new Date().toISOString().slice(0,10);
+  data._client = (document.getElementById('p_client')||{value:''}).value || 'sans-nom';
+
+  var blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'devis_' + data._client.replace(/\s+/g,'_') + '_' + data._date + '.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importerJSON(){
+  document.getElementById('json_import_input').value = '';
+  document.getElementById('json_import_input').click();
+}
+
+function chargerFichierJSON(input){
+  var file = input.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try{ appliquerJSON(JSON.parse(e.target.result)); }
+    catch(err){ alert('Fichier JSON invalide : ' + err.message); }
+  };
+  reader.readAsText(file);
+}
+
+function appliquerJSON(data){
+  // 1. Paramètres + rebuild
+  if(data.params){
+    Object.keys(data.params).forEach(function(id){
+      if(id.slice(-8)==='__userSet') return;
+      var el = document.getElementById(id);
+      if(!el) return;
+      el.value = data.params[id];
+      var us = data.params[id+'__userSet'];
+      if(us && el.dataset) el.dataset.userSet = us;
+    });
+    buildAll();
+    renderTransport();
+  }
+  // 2. Quantités pièces
+  if(data.pieces) Object.keys(data.pieces).forEach(function(id){ var el=document.getElementById(id); if(el) el.value=data.pieces[id]; });
+  // 3. Transport
+  if(data.transport) Object.keys(data.transport).forEach(function(id){ var el=document.getElementById(id); if(el) el.value=data.transport[id]; });
+  // 4. Lignes directes
+  if(data.ld) Object.keys(data.ld).forEach(function(id){ var el=document.getElementById(id); if(el) el.value=data.ld[id]; });
+  // 5. Appareillage
+  if(data.appareillage) Object.keys(data.appareillage).forEach(function(id){
+    if(id.slice(-8)==='__userSet') return;
+    var el=document.getElementById(id); if(!el) return;
+    el.value=data.appareillage[id];
+    var us=data.appareillage[id+'__userSet']; if(us && el.dataset) el.dataset.userSet=us;
+  });
+  // 6. Tableau extra
+  if(data.tableau) Object.keys(data.tableau).forEach(function(id){
+    if(id.slice(-8)==='__userSet') return;
+    var el=document.getElementById(id); if(!el) return;
+    el.value=data.tableau[id];
+    var us=data.tableau[id+'__userSet']; if(us && el.dataset) el.dataset.userSet=us;
+  });
+  // 7. Prix HT
+  if(data.r_tot_inp){ var rt=document.getElementById('r_tot_inp'); if(rt){ rt.textContent=data.r_tot_inp.text; if(data.r_tot_inp.userSet && rt.dataset) rt.dataset.userSet=data.r_tot_inp.userSet; } }
+  // 8. Recalcul
+  recalc();
+  alert('Étude chargée : ' + (data._client||'?') + ' (' + (data._date||'?') + ')');
+}
+
+// ===================== FIN EXPORT / IMPORT JSON =====================
+
 buildAll();
 _lignesTableau.push({id:'tab_0', label:'', qty:1, pa:0});
 renderLignesExtra('tableau');
 renderLignesExtra('appareillage');
+renderTransport();
 </script>
 
 <div class="modal-overlay" id="modal-etudes" onclick="fermerModal()">
@@ -1507,12 +1789,6 @@ renderLignesExtra('appareillage');
 </div>
 </body>
 </html>
-
-
-
-
-
-
 
 
 
