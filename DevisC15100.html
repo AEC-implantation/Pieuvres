@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -138,6 +139,14 @@
     /* Masquer transport en impression */
     #section-transport { display:none !important; }
 
+    /* GTL : masquer colonne PA uniquement, garder PV */
+    #gtl_pa_col { display:none !important; }
+    #gtl_mo_row { display:none !important; }
+
+    /* Tableau élec : masquer colonne PA */
+    #tab_pa_inp { display:none !important; }
+    #tab-simple-row > div:nth-child(2) { display:none !important; }
+
     /* Totaux HT et TTC seulement */
     .recap { display:block !important; border:1px solid #ccc; border-radius:4px; margin-top:8px; page-break-inside:avoid; }
     .rrow { display:none !important; }
@@ -202,6 +211,7 @@
           <div class="trow"><label>U1000 1.5mm2</label><input type="number" class="pi" id="t_u1000_15" value="0.95" min="0" step="0.01" oninput="recalc()"></div>
           <div class="trow"><label>Coax</label><input type="number" class="pi" id="t_coax" value="0.20" min="0" step="0.01" oninput="recalc()"></div>
         </div>
+
         <div class="tgrp">
           <div class="tgrp-title">Tableau EUR (PA)</div>
           <div class="trow"><label>Studio</label><input type="number" class="pi" id="t_tab_studio" value="250" min="0" step="1" oninput="recalc()" style="width:72px"></div>
@@ -311,7 +321,7 @@
           </select>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
-          <span style="font-size:.68rem;color:var(--muted)">PA (€)</span>
+          <span style="font-size:.68rem;color:var(--muted)"></span>
           <input type="number" id="tab_pa_inp" class="extra-num" value="0" min="0" step="0.01" oninput="recalc();" onchange="recalc();" style="width:100px">
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
@@ -356,7 +366,7 @@
     <div class="extra-body">
       <div style="display:grid;grid-template-columns:1fr 110px 110px;gap:12px;align-items:center;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)">
         <span style="font-size:.8rem;color:var(--muted)">Goulotte GTL avec couvercle</span>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+        <div id="gtl_pa_col" style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
           <span style="font-size:.68rem;color:var(--muted)">PA (€)</span>
           <input type="number" id="gtl_pa_inp" class="extra-num" value="65" min="0" step="1" oninput="recalc();" onchange="recalc();" style="width:100px">
         </div>
@@ -365,7 +375,7 @@
           <input type="number" id="gtl_pv_inp" class="extra-num" value="99" min="0" step="1" oninput="recalc();" onchange="recalc();" style="width:100px;color:var(--accent2)">
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:12px;font-size:.78rem;color:var(--muted)">
+      <div id="gtl_mo_row" style="display:flex;align-items:center;gap:12px;font-size:.78rem;color:var(--muted)">
         <span>Temps pose MO (min)</span>
         <input type="number" id="gtl_min" class="extra-num" value="18" min="0" step="1" oninput="recalc();" style="width:70px;color:var(--text)">
         <span style="margin-left:auto;font-size:.72rem">Tarif MO = prix heure / 60 × minutes</span>
@@ -431,7 +441,10 @@ function coef(){return parseFloat(document.getElementById('p_coef').value)||1.4;
 // Dotations C15-100
 var PIECES = [
   {key:'sejour', label:'Sejour / Salon', lignes:[
-    {id:'p20',   label:'Prises 16A 2P+T',       min:5, nf:3, pf:'fil25',   pi:'ict20', L:15},
+    {id:'p20',   label:'Prises 16A 2P+T',                  min:5, nf:3, pf:'fil25',   pi:'ict20', L:15},
+    {id:'p20d',  label:'Prises 16A 2P+T double',           min:0, nf:3, pf:'fil25',   pi:'ict20', L:15},
+    {id:'p20t',  label:'Prises 16A 2P+T triple',           min:0, nf:3, pf:'fil25',   pi:'ict20', L:15},
+    {id:'p20q',  label:'Prises 16A 2P+T quadruple',        min:0, nf:3, pf:'fil25',   pi:'ict20', L:15},
     {id:'dcl',   label:'DCL plafond',            min:1, nf:3, pf:'fil15',   pi:'ict25', L:10},
     {id:'vv',    label:'Va-et-vient (1.5mm2)',   min:1, nf:3, pf:'fil15',   pi:'ict20', L:24},
     {id:'perm',  label:'Permutateur par point de commande (1.5mm2)', min:0, nf:4, pf:'fil15', pi:'ict20', L:15},
@@ -444,7 +457,10 @@ var PIECES = [
     {id:'therm', label:'Thermostat (1.5mm2)',                        min:0, nf:3, pf:'fil15', pi:'ict20', L:20}
   ]},
   {key:'cuisine', label:'Cuisine', lignes:[
-    {id:'p20',   label:'Prises 16A 2P+T',       min:6, nf:3, pf:'fil25', pi:'ict20', L:15},
+    {id:'p20',   label:'Prises 16A 2P+T',                  min:6, nf:3, pf:'fil25', pi:'ict20', L:15},
+    {id:'p20d',  label:'Prises 16A 2P+T double',           min:0, nf:3, pf:'fil25', pi:'ict20', L:15},
+    {id:'p20t',  label:'Prises 16A 2P+T triple',           min:0, nf:3, pf:'fil25', pi:'ict20', L:15},
+    {id:'p20q',  label:'Prises 16A 2P+T quadruple',        min:0, nf:3, pf:'fil25', pi:'ict20', L:15},
     {id:'p32',   label:'Prise 32A (plaque cuisson)', min:1, nf:3, pf:'fil6',  pi:'ict25', L:20},
     {id:'lave',  label:'Lave-vaisselle 20A',     min:1, nf:3, pf:'fil25', pi:'ict20', L:20},
     {id:'dcl',   label:'DCL plafond',            min:1, nf:3, pf:'fil15', pi:'ict25', L:10},
@@ -498,8 +514,7 @@ var PIECES = [
 var DIVERS = [
   {id:'bpav', label:'Boite pavillonaire + wago', min:1, fixedPU:89, nf:0, pf:null, pi:null, L:0},
   {id:'prep', label:'Prepa transport + materiel', min:0, fixedPU:45, nf:0, pf:null, pi:null, L:0, noLng:true},
-  {id:'ech',  label:'Echange client / plans',    min:0, fixedPU:45, nf:0, pf:null, pi:null, L:0, noLng:true},
-  {id:'trsp', label:'Frais de transport',          min:1, fixedPU:150, nf:0, pf:null, pi:null, L:0, noLng:true, freeTotal:true, fixedQty:1}
+  {id:'ech',  label:'Echange client / plans',    min:0, fixedPU:45, nf:0, pf:null, pi:null, L:0, noLng:true}
 ];
 
 var LIGNES_DIRECTES = [
@@ -522,7 +537,10 @@ var WC_LIGNES = [
 ];
 
 var CHAMBRE = [
-  {id:'p20',   label:'Prises 16A 2P+T',           min:3, nf:3, pf:'fil25', pi:'ict20', L:15},
+  {id:'p20',   label:'Prises 16A 2P+T',                  min:3, nf:3, pf:'fil25', pi:'ict20', L:15},
+  {id:'p20d',  label:'Prises 16A 2P+T double',           min:0, nf:3, pf:'fil25', pi:'ict20', L:15},
+  {id:'p20t',  label:'Prises 16A 2P+T triple',           min:0, nf:3, pf:'fil25', pi:'ict20', L:15},
+  {id:'p20q',  label:'Prises 16A 2P+T quadruple',        min:0, nf:3, pf:'fil25', pi:'ict20', L:15},
   {id:'dcl',   label:'DCL plafond',               min:1, nf:3, pf:'fil15', pi:'ict25', L:10},
   {id:'rj',    label:'Prises RJ45 Grade 3TV',      min:0, nf:1, pf:'grad3tv', pi:'ict20', L:15},
   {id:'vv',    label:'Va-et-vient (1.5mm2)',       min:1, nf:3, pf:'fil15', pi:'ict20', L:24},
@@ -638,14 +656,29 @@ function toggleTarifsC15(){
 
 function collectState(){
   var state={};
-  var inputs=document.querySelectorAll('.piece input, .params-bar input, .infos-bar input, #panel_tarifs_c15 input');
+  // Pièces + barres + tarifs + sections extra
+  var inputs=document.querySelectorAll(
+    '.piece input, .params-bar input, .infos-bar input, #panel_tarifs_c15 input, ' +
+    '#section-tableau input, #section-gtl input, #section-transport input, ' +
+    '#section-appareillage input, #rows-appareillage input'
+  );
   for(var i=0;i<inputs.length;i++){
     if(inputs[i].id) state[inputs[i].id]=inputs[i].value;
   }
-  var sels=document.querySelectorAll('.params-bar select, .infos-bar select, #p_etages, #p_typo, #opt_garage, #opt_cellier, #opt_bureau');
+  var sels=document.querySelectorAll(
+    '.params-bar select, .infos-bar select, #p_etages, #p_typo, ' +
+    '#opt_garage, #opt_cellier, #opt_bureau, #tab_type'
+  );
   for(var i=0;i<sels.length;i++){
     if(sels[i].id) state[sels[i].id]=sels[i].value;
   }
+  // Transport zones (ids dynamiques)
+  ['z1','z2','z3','z4','z5'].forEach(function(z){
+    ['q','pvforce'].forEach(function(f){
+      var el=document.getElementById('trsp_'+z+'_'+f);
+      if(el) state['trsp_'+z+'_'+f]=el.value;
+    });
+  });
   return state;
 }
 
@@ -653,10 +686,18 @@ function applyState(state){
   if(state.nb_ch)  document.getElementById('nb_ch').value=state.nb_ch;
   if(state.nb_sdb) document.getElementById('nb_sdb').value=state.nb_sdb;
   if(state.nb_wc)  document.getElementById('nb_wc').value=state.nb_wc;
-  if(state.opt_garage)  document.getElementById('opt_garage').value=state.opt_garage;
-  if(state.opt_cellier) document.getElementById('opt_cellier').value=state.opt_cellier;
-  if(state.opt_bureau)  document.getElementById('opt_bureau').value=state.opt_bureau;
+  if(state.opt_garage)  document.getElementById('opt_garage') && (document.getElementById('opt_garage').value=state.opt_garage);
+  if(state.opt_cellier) document.getElementById('opt_cellier') && (document.getElementById('opt_cellier').value=state.opt_cellier);
+  if(state.opt_bureau)  document.getElementById('opt_bureau') && (document.getElementById('opt_bureau').value=state.opt_bureau);
+  // Stocker pour restore dans buildAll
+  _jsonRestoreValues = { pieces: {}, longueurs: {}, ld: {} };
+  for(var id in state){
+    if(id.match(/_q$/) && !id.startsWith('trsp_')) _jsonRestoreValues.pieces[id] = state[id];
+    else if(id.match(/_L$/)) _jsonRestoreValues.longueurs[id] = state[id];
+    else if(id.startsWith('ld_')) _jsonRestoreValues.ld[id] = state[id];
+  }
   buildAll();
+  renderTransport();
   setTimeout(function(){
     for(var id in state){
       var el=document.getElementById(id);
@@ -664,7 +705,7 @@ function applyState(state){
       if(el && el.tagName==='SELECT') el.value=state[id];
     }
     recalc();
-  }, 200);
+  }, 50);
 }
 
 function sauvegarderC15(){
@@ -967,6 +1008,9 @@ var PA_APP = {
   bp:   2.28,
   dcl:  2.12,
   p20:  2.16,
+  p20d: 3.70,
+  p20t: 8.00,
+  p20q: 11.00,
   p32:  2.85,
   lave: 2.16,
   hott: 2.16,
@@ -992,7 +1036,10 @@ function getPAApp(lid){
   if(lid.indexOf('exterieur_p20')>=0) return PA_APP.p20_ext;
   if(lid.indexOf('exterieur_dcl')>=0) return PA_APP.dcl_ext;
   if(lid.indexOf('exterieur_bp')>=0)  return PA_APP.bp_ext;
-  for(var k in PA_APP){
+  // Trier les clés par longueur décroissante pour éviter que 'p20' matche avant 'p20d'
+  var keys = Object.keys(PA_APP).sort(function(a,b){ return b.length - a.length; });
+  for(var i=0; i<keys.length; i++){
+    var k = keys[i];
     if(lid.indexOf('_'+k)>=0 || lid.slice(-k.length)===k) return PA_APP[k];
   }
   return 0;
@@ -1189,6 +1236,8 @@ function calcExtra(arr){
   return {achat:totAchat, vente:totVente};
 }
 
+var _jsonRestoreValues = null; // valeurs à restaurer lors du prochain buildAll
+
 function buildAll(){
   var cont = document.getElementById('pieces');
   cont.innerHTML = '';
@@ -1227,6 +1276,23 @@ function buildAll(){
 
   cont.appendChild(makePieceLignesDirectes());
   cont.appendChild(makePieceDivers());
+
+  // Restaurer les valeurs JSON si disponibles
+  if(_jsonRestoreValues){
+    var rv = _jsonRestoreValues;
+    var restored=0, missed=0;
+    // Quantités et longueurs
+    if(rv.pieces) Object.keys(rv.pieces).forEach(function(id){
+      var el=document.getElementById(id);
+      if(el){ el.value=rv.pieces[id]; restored++; }
+      else { console.warn('JSON restore: introuvable id='+id); missed++; }
+    });
+    if(rv.longueurs) Object.keys(rv.longueurs).forEach(function(id){ var el=document.getElementById(id); if(el) el.value=rv.longueurs[id]; });
+    if(rv.ld) Object.keys(rv.ld).forEach(function(id){ var el=document.getElementById(id); if(el) el.value=rv.ld[id]; });
+    console.log('JSON restore: '+restored+' restaurés, '+missed+' manquants');
+    _jsonRestoreValues = null; // consommé
+  }
+
   recalc();
 }
 
@@ -1375,7 +1441,7 @@ function recalc(){
   function sv(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
   function fmt2(v){return v.toFixed(2)+' EUR';}
   // Prix vente pieuvre = matière facturée AVANT tableau/appareillage/GTL/transport
-  var pvPieuvre = (totMat * coefV) + moFact;
+  var pvPieuvre = (totMat * coefV) + moFact + trspVente;
   var elPvP = document.getElementById('pv_pieuvre');
   if(elPvP) elPvP.textContent = pvPieuvre.toFixed(2)+' EUR';
   sv('r_tab_achat', fmt2(tabPa));
@@ -1668,7 +1734,11 @@ function exporterJSON(){
 
   // -- Quantités pièces --
   data.pieces = {};
-  document.querySelectorAll('input[id^="q_"]').forEach(function(el){ data.pieces[el.id] = el.value; });
+  document.querySelectorAll('input.iqty').forEach(function(el){ data.pieces[el.id] = el.value; });
+
+  // -- Longueurs pièces --
+  data.longueurs = {};
+  document.querySelectorAll('input.ilng').forEach(function(el){ data.longueurs[el.id] = el.value; });
 
   // -- Transport zones --
   data.transport = {};
@@ -1731,42 +1801,57 @@ function chargerFichierJSON(input){
 }
 
 function appliquerJSON(data){
-  // 1. Paramètres + rebuild
+  // 1. Stocker les valeurs à restaurer AVANT le rebuild
+  _jsonRestoreValues = {
+    pieces:   data.pieces   || {},
+    longueurs:data.longueurs|| {},
+    ld:       data.ld       || {}
+  };
+
+  // 2. Appliquer les params structurels (nb pièces, options, tarifs) → déclenchera buildAll
+  var structIds = ['nb_ch','nb_sdb','nb_wc','nb_garage','nb_cellier','nb_bureau',
+                   'opt_tab','opt_app','opt_gtl','p_heure','p_coef',
+                   't_fil15','t_fil25','t_fil6','t_ict20','t_ict25','t_ict40',
+                   't_grad3tv','t_u1000_25','t_u1000_15','t_coax',
+                   't_tab_studio','t_tab_t1','t_tab_t2','t_tab_t3','t_tab_t4','t_tab_t5',
+                   't_trsp_z1','t_trsp_z2','t_trsp_z3','t_trsp_z4','t_trsp_z5','t_gtl'];
+  if(data.params){
+    structIds.forEach(function(id){
+      var el=document.getElementById(id); if(!el) return;
+      if(data.params[id]!==undefined) el.value=data.params[id];
+    });
+  }
+
+  // 3. Rebuild — injecte _jsonRestoreValues pendant la construction
+  buildAll();
+  renderTransport();
+
+  // 4. Appliquer le reste (transport, appareillage, tableau, params non-struct)
   if(data.params){
     Object.keys(data.params).forEach(function(id){
       if(id.slice(-8)==='__userSet') return;
-      var el = document.getElementById(id);
-      if(!el) return;
-      el.value = data.params[id];
-      var us = data.params[id+'__userSet'];
-      if(us && el.dataset) el.dataset.userSet = us;
+      var el=document.getElementById(id); if(!el) return;
+      el.value=data.params[id];
+      var us=data.params[id+'__userSet']; if(us && el.dataset) el.dataset.userSet=us;
     });
-    buildAll();
-    renderTransport();
   }
-  // 2. Quantités pièces
-  if(data.pieces) Object.keys(data.pieces).forEach(function(id){ var el=document.getElementById(id); if(el) el.value=data.pieces[id]; });
-  // 3. Transport
   if(data.transport) Object.keys(data.transport).forEach(function(id){ var el=document.getElementById(id); if(el) el.value=data.transport[id]; });
-  // 4. Lignes directes
-  if(data.ld) Object.keys(data.ld).forEach(function(id){ var el=document.getElementById(id); if(el) el.value=data.ld[id]; });
-  // 5. Appareillage
   if(data.appareillage) Object.keys(data.appareillage).forEach(function(id){
     if(id.slice(-8)==='__userSet') return;
     var el=document.getElementById(id); if(!el) return;
     el.value=data.appareillage[id];
     var us=data.appareillage[id+'__userSet']; if(us && el.dataset) el.dataset.userSet=us;
   });
-  // 6. Tableau extra
   if(data.tableau) Object.keys(data.tableau).forEach(function(id){
     if(id.slice(-8)==='__userSet') return;
     var el=document.getElementById(id); if(!el) return;
     el.value=data.tableau[id];
     var us=data.tableau[id+'__userSet']; if(us && el.dataset) el.dataset.userSet=us;
   });
-  // 7. Prix HT
   if(data.r_tot_inp){ var rt=document.getElementById('r_tot_inp'); if(rt){ rt.textContent=data.r_tot_inp.text; if(data.r_tot_inp.userSet && rt.dataset) rt.dataset.userSet=data.r_tot_inp.userSet; } }
-  // 8. Recalcul
+  if(typeof toggleGTL==='function') toggleGTL();
+  if(typeof toggleTableau==='function') toggleTableau();
+  if(typeof toggleAppareillage==='function') toggleAppareillage();
   recalc();
   alert('Étude chargée : ' + (data._client||'?') + ' (' + (data._date||'?') + ')');
 }
