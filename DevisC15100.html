@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -497,16 +496,20 @@ var PIECES = [
   ]},
   {key:'cellier', label:'Cellier', lignes:[
     {id:'p20',   label:'Prises 16A 2P+T',         min:2, nf:3, pf:'fil25', pi:'ict20', L:15},
+    {id:'frig',  label:'Prise specialisee 20A',   min:0, nf:3, pf:'fil25', pi:'ict20', L:15},
     {id:'dcl',   label:'DCL plafond',              min:1, nf:3, pf:'fil15', pi:'ict25', L:8},
     {id:'bp',    label:'Simple allumage',          min:1, nf:2, pf:'fil15', pi:'ict20', L:8},
     {id:'lave',  label:'Lave-linge 20A',           min:0, nf:3, pf:'fil25', pi:'ict20', L:20}
   ]},
   {key:'bureau', label:'Bureau', lignes:[
-    {id:'p20',   label:'Prises 16A 2P+T',         min:4, nf:3, pf:'fil25', pi:'ict20', L:15},
+    {id:'p20',   label:'Prises 16A 2P+T',         min:4, nf:3, pf:'fil25',   pi:'ict20', L:15},
+    {id:'p20d',  label:'Prises 16A 2P+T double',  min:0, nf:3, pf:'fil25',   pi:'ict20', L:15},
+    {id:'p20t',  label:'Prises 16A 2P+T triple',  min:0, nf:3, pf:'fil25',   pi:'ict20', L:15},
     {id:'rj',    label:'Prises RJ45 Grade 3TV',    min:0, nf:1, pf:'grad3tv', pi:'ict20', L:15},
-    {id:'dcl',   label:'DCL plafond',              min:1, nf:3, pf:'fil15', pi:'ict25', L:10},
-    {id:'bp',    label:'Simple allumage',          min:1, nf:2, pf:'fil15', pi:'ict20', L:10}
-    // vr → LD "vr" | chauf → LD "chch"
+    {id:'dcl',   label:'DCL plafond',              min:1, nf:3, pf:'fil15',   pi:'ict25', L:10},
+    {id:'bp',    label:'Simple allumage',          min:1, nf:2, pf:'fil15',   pi:'ict20', L:10},
+    {id:'vv',    label:'Va-et-vient (1.5mm2)',     min:0, nf:3, pf:'fil15',   pi:'ict20', L:24},
+    {id:'vr',    label:'Volets roulants elec (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:20}
   ]}
 ];
 
@@ -543,6 +546,7 @@ var CHAMBRE = [
   {id:'p20q',  label:'Prises 16A 2P+T quadruple',        min:0, nf:3, pf:'fil25', pi:'ict20', L:15},
   {id:'dcl',   label:'DCL plafond',               min:1, nf:3, pf:'fil15', pi:'ict25', L:10},
   {id:'rj',    label:'Prises RJ45 Grade 3TV',      min:0, nf:1, pf:'grad3tv', pi:'ict20', L:15},
+  {id:'tv',    label:'Prise TV multimedia',         min:0, nf:1, pf:'grad3tv', pi:'ict20', L:15},
   {id:'vv',    label:'Va-et-vient (1.5mm2)',       min:1, nf:3, pf:'fil15', pi:'ict20', L:24},
   {id:'bp',    label:'Simple allumage / BP',       min:0, nf:2, pf:'fil15', pi:'ict20', L:10},
   {id:'vr',    label:'Volets roulants elec (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:20},
