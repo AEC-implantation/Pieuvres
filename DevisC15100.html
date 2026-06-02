@@ -1,6 +1,5 @@
 
 
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -153,6 +152,7 @@
     .rrow { display:none !important; }
     .rrow.tot { display:flex !important; background:#fff8e8 !important; -webkit-print-color-adjust:exact; padding:5px 10px; }
     .rrow.tot .rl { font-weight:bold; font-size:10pt; }
+    .rrow-mention { display:flex !important; font-style:italic; font-size:9pt; color:#333 !important; justify-content:center; padding:6px 10px; border-top:1px solid #ddd; }
     .rrow.tot .rv { font-size:11pt; font-weight:bold; color:#f0a500; }
 }
 
@@ -414,6 +414,7 @@
     <div class="rrow"><span class="rl">Marge</span><span class="rv" style="color:var(--accent)" id="r_marge">—</span></div>
     <div class="rrow tot" ondblclick="modifierPrixHT()" style="cursor:pointer" title="Double-clic pour modifier"><span class="rl">PRIX TOTAL HT</span><span class="rv" id="r_tot_inp">—</span><span id="r_tot" style="display:none">—</span></div>
     <div class="rrow tot" style="border-top:1px solid rgba(240,165,0,.3)"><span class="rl">PRIX TOTAL TTC (TVA 20%)</span><span class="rv" id="r_ttc">—</span></div>
+    <div id="r_transport_mention" class="rrow rrow-mention" style="font-style:italic;font-size:.85rem;color:var(--text);justify-content:center;padding:8px 0;border-top:1px solid var(--border)"></div>
   </div>
 
   <!-- Barre d'actions -->
@@ -448,6 +449,7 @@ var PIECES = [
     {id:'p20q',  label:'Prises 16A 2P+T quadruple',        min:0, nf:3, pf:'fil25',   pi:'ict20', L:15},
     {id:'dcl',   label:'DCL plafond',            min:1, nf:3, pf:'fil15',   pi:'ict25', L:10},
     {id:'vv',    label:'Va-et-vient (1.5mm2)',   min:1, nf:3, pf:'fil15',   pi:'ict20', L:24},
+    {id:'vvtv',  label:'Va-et-vient sur televariateur (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:24},
     {id:'perm',  label:'Permutateur par point de commande (1.5mm2)', min:0, nf:4, pf:'fil15', pi:'ict20', L:15},
     {id:'bp',    label:'Simple allumage / BP',   min:0, nf:2, pf:'fil15',   pi:'ict20', L:12},
     {id:'bpv',   label:'Simple allumage a voyant avec neutre (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:12},
@@ -1013,6 +1015,7 @@ function recalcMarge(){
 // PA appareillage par type de point (id dans PIECES/CHAMBRE/SDB/WC/LD)
 var PA_APP = {
   vv:   4.56,
+  vvtv: 35.00,
   bp:   2.28,
   dcl:  2.12,
   p20:  2.16,
@@ -1031,7 +1034,7 @@ var PA_APP = {
   sonn: 4.62,
   pdr:  8.63,
   clim: 0,
-  vmc:  4.62,
+  vmc:  5.00,
   chaud:0,
   p20_ext: 7.01,
   dcl_ext: 2.12,
@@ -1397,6 +1400,15 @@ function recalc(){
   var ptDivers = document.getElementById('ptot_divers');
   if(ptDivers) ptDivers.textContent = diversTot.toFixed(2)+' EUR';
 
+  // BP VMC auto : si VMC > 0, forcer BP VMC cuisine à 1 minimum
+  var vmcEl = document.getElementById('ld_vmc_q');
+  var bpvmcEl = document.getElementById('cuisine_bpvmc_q');
+  if(vmcEl && bpvmcEl){
+    var vmcQ = parseInt(vmcEl.value)||0;
+    var bpvmcQ = parseInt(bpvmcEl.value)||0;
+    if(vmcQ > 0 && bpvmcQ < 1){ bpvmcEl.value = 1; }
+  }
+
   var coefV = coef();
   var heureV = heure();
   var matFact = totMat * coefV;
@@ -1460,6 +1472,10 @@ function recalc(){
   sv('r_app_vente', fmt2(resApp.vente));
   sv('r_gtl_vente', fmt2(gtlVente));
   sv('r_trsp_vente', fmt2(trspVente));
+
+  // Mention transport sous le prix HT
+  var mentionEl = document.getElementById('r_transport_mention');
+  if(mentionEl) mentionEl.textContent = trspVente > 0 ? 'Frais de transport inclus' : 'Matériel à enlever par le client';
 
   sv('r_pts',   totPts+' points');
   sv('r_mat',   totMat.toFixed(2)+' EUR');
@@ -1536,7 +1552,7 @@ function renderTransport(){
       var inpQ=document.createElement('input');
       inpQ.type='number'; inpQ.className='extra-num'; inpQ.id='trsp_'+z.id+'_q';
       inpQ.value=0; inpQ.min=0; inpQ.step=1; inpQ.style.textAlign='center';
-      inpQ.addEventListener('input',function(){recalc();});
+      inpQ.addEventListener('input',function(){this.value=parseInt(this.value)||0;recalc();});
       var pvAutoEl=document.createElement('span');
       pvAutoEl.style.cssText='text-align:right;font-family:"IBM Plex Mono",monospace;font-size:.78rem;font-weight:700;color:var(--accent2)';
       pvAutoEl.id='trsp_'+z.id+'_pvauto';
@@ -1882,9 +1898,6 @@ renderTransport();
 </div>
 </body>
 </html>
-
-
-
 
 
 
