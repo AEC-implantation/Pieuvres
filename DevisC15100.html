@@ -287,6 +287,8 @@
     <input type="number" class="pi" id="p_heure" value="45" min="0" step="1" oninput="recalc()" onchange="recalc()">
     <span class="p-label">Coef matière</span>
     <input type="number" class="pi" id="p_coef" value="1.4" min="1" step="0.05" oninput="recalc()" onchange="recalc()">
+    <span class="p-label">Coef appareillage</span>
+    <input type="number" class="pi" id="p_coef_app" value="1.5" min="1" step="0.05" oninput="recalc()" onchange="recalc()">
   </div>
 
   <!-- Conteneur pièces -->
@@ -1417,7 +1419,8 @@ function recalc(){
   // Appareillage automatique
   var optApp = document.getElementById('opt_app') ? document.getElementById('opt_app').value : 'oui';
   var autoPA = optApp==='oui' ? calcAppareillageAuto() : 0;
-  var autoPVCalc = autoPA * coefV;
+  var coefApp = parseFloat(document.getElementById('p_coef_app') ? document.getElementById('p_coef_app').value : 1.5) || 1.5;
+  var autoPVCalc = autoPA * coefApp;
   var elAPA=document.getElementById('app_auto_pa'); if(elAPA) elAPA.textContent=autoPA.toFixed(2)+' EUR';
   var elAPAInp=document.getElementById('app_auto_pa_inp');
   if(elAPAInp && (!elAPAInp.dataset.userSet || elAPAInp.dataset.userSet==='0')) elAPAInp.value=autoPA.toFixed(2);
@@ -1898,6 +1901,8 @@ renderTransport();
 </div>
 </body>
 </html>
+
+
 
 
 
