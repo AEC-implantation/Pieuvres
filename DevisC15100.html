@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -149,10 +150,12 @@
 
     /* Totaux HT et TTC seulement */
     .recap { display:block !important; border:1px solid #ccc; border-radius:4px; margin-top:8px; page-break-inside:avoid; }
+    .no-print { display:none !important; }
     .rrow { display:none !important; }
     .rrow.tot { display:flex !important; background:#fff8e8 !important; -webkit-print-color-adjust:exact; padding:5px 10px; }
     .rrow.tot .rl { font-weight:bold; font-size:10pt; }
     .rrow-mention { display:flex !important; font-style:italic; font-size:9pt; color:#333 !important; justify-content:center; padding:6px 10px; border-top:1px solid #ddd; }
+    #r_conformite_row.visible { display:flex !important; background:#fff0f0 !important; -webkit-print-color-adjust:exact; }
     .rrow.tot .rv { font-size:11pt; font-weight:bold; color:#f0a500; }
 }
 
@@ -172,7 +175,7 @@
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
       <div>
         <div style="font-size:14pt;font-weight:bold;color:#f0a500;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.05em">⚡ CAUSSE PIEUVRES</div>
-        <div style="font-size:9pt;color:#555;margin-top:2px">Dotations C15-100</div>
+        <div style="font-size:9pt;color:#555;margin-top:2px">Offre estimative — Dotations C15-100</div>
       </div>
       <div style="font-size:9pt;color:#1a2a3a;text-align:right">
         <div><strong id="ph_client"></strong></div>
@@ -283,12 +286,120 @@
       <option value="oui">Oui</option>
       <option value="non">Non</option>
     </select>
+    <span class="p-label">Tab. communication</span>
+    <select id="opt_tabcom" style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:600;padding:3px 8px;outline:none" onchange="toggleTabCom()">
+      <option value="non">Non</option>
+      <option value="oui">Oui</option>
+    </select>
     <span class="p-label" style="margin-left:12px">Prix heure MO (€)</span>
     <input type="number" class="pi" id="p_heure" value="45" min="0" step="1" oninput="recalc()" onchange="recalc()">
+    <span class="p-label">Coût horaire réel (€)</span>
+    <input type="number" class="pi" id="p_heure_achat" value="27" min="0" step="1" oninput="recalc()" onchange="recalc()">
     <span class="p-label">Coef matière</span>
     <input type="number" class="pi" id="p_coef" value="1.4" min="1" step="0.05" oninput="recalc()" onchange="recalc()">
     <span class="p-label">Coef appareillage</span>
     <input type="number" class="pi" id="p_coef_app" value="1.5" min="1" step="0.05" oninput="recalc()" onchange="recalc()">
+  </div>
+
+  <!-- Renseignements chantier -->
+  <div class="extra-section" id="section-chantier" style="margin-bottom:18px">
+    <div class="extra-hdr"><span class="tag" style="background:#2e7d32">R</span><h3>Renseignements chantier</h3></div>
+    <div class="extra-body" id="chantier-body">
+      <div style="display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start">
+
+        <!-- Neuf / Rénovation -->
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <span style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Type de chantier</span>
+          <select id="ch_type" onchange="applyMinsChantier()" style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:600;padding:4px 8px;outline:none">
+            <option value="neuf">Neuf</option>
+            <option value="renov">Rénovation</option>
+          </select>
+        </div>
+
+        <!-- Plafond placo -->
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <span style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Plafond placo</span>
+          <select id="ch_placo" style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:600;padding:4px 8px;outline:none">
+            <option value="oui">Oui</option>
+            <option value="non">Non</option>
+          </select>
+        </div>
+
+        <!-- Combles accessibles -->
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <span style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Combles accessibles</span>
+          <select id="ch_combles" style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:600;padding:4px 8px;outline:none">
+            <option value="oui">Oui</option>
+            <option value="non">Non</option>
+          </select>
+        </div>
+
+        <!-- Hauteur sous plafond -->
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <span style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Hauteur sous plafond</span>
+          <input type="text" id="ch_hsp" placeholder="ex : 2.50 m" style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:.82rem;padding:4px 8px;outline:none;width:120px">
+        </div>
+
+        <!-- Trappe de visite -->
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <span style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Trappe de visite</span>
+          <select id="ch_trappe" onchange="toggleTrappe()" style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:600;padding:4px 8px;outline:none">
+            <option value="non">Non</option>
+            <option value="oui">Oui</option>
+          </select>
+        </div>
+
+        <!-- Localisation trappe (visible si oui) -->
+        <div id="ch_trappe_loc_row" style="display:none;flex-direction:column;gap:4px">
+          <span style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Localisation trappe</span>
+          <input type="text" id="ch_trappe_loc" placeholder="ex : couloir, chambre 1..." style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:.82rem;padding:4px 8px;outline:none;width:200px">
+        </div>
+
+        <!-- Antenne TV -->
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <span style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Antenne TV</span>
+          <select id="ch_antenne" style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:600;padding:4px 8px;outline:none">
+            <option value="oui">Oui</option>
+            <option value="non">Non</option>
+          </select>
+        </div>
+
+        <!-- Prises RJ45 -->
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <span style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Prises RJ45</span>
+          <select id="ch_rj45" style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:600;padding:4px 8px;outline:none">
+            <option value="oui">Oui</option>
+            <option value="non">Non</option>
+          </select>
+        </div>
+
+        <!-- Type de chauffage -->
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <span style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Type de chauffage</span>
+          <select id="ch_chauffage" onchange="toggleChauffageAutre()" style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:600;padding:4px 8px;outline:none">
+            <option value="elec">Électrique</option>
+            <option value="pac">Pompe à chaleur</option>
+            <option value="gainable">Gainable</option>
+            <option value="clim">Climatisation</option>
+            <option value="autre">Autre</option>
+          </select>
+        </div>
+
+        <!-- Chauffage autre zone libre -->
+        <div id="ch_chauffage_autre_row" style="display:none;flex-direction:column;gap:4px">
+          <span style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Préciser</span>
+          <input type="text" id="ch_chauffage_autre" placeholder="Type de chauffage..." style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:.82rem;padding:4px 8px;outline:none;width:200px">
+        </div>
+
+      </div>
+
+      <!-- Zone libre renseignements divers -->
+      <div style="margin-top:14px">
+        <span style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Renseignements divers</span>
+        <textarea id="ch_divers" rows="3" placeholder="Informations complémentaires..." style="display:block;margin-top:4px;width:100%;background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:.82rem;padding:6px 8px;outline:none;resize:vertical;box-sizing:border-box"></textarea>
+      </div>
+
+    </div>
   </div>
 
   <!-- Conteneur pièces -->
@@ -332,6 +443,18 @@
           <input type="number" id="tab_pv_inp" class="extra-num" value="0.00" min="0" step="1" oninput="this.dataset.userSet='1';recalc();" onchange="this.dataset.userSet='1';this.value=parseFloat(this.value).toFixed(2);recalc();" style="color:var(--accent2);width:100px">
         </div>
       </div>
+      <div id="tabcom-row" style="display:none;grid-template-columns:1fr 130px 110px 110px;gap:12px;align-items:center;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)">
+        <span style="font-size:.8rem;color:var(--muted)">Tableau de communication</span>
+        <div></div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+          <span style="font-size:.68rem;color:var(--muted)">PA (€)</span>
+          <input type="number" id="tabcom_pa_inp" class="extra-num" value="60" min="0" step="1" oninput="recalc();" onchange="recalc();" style="width:100px">
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+          <span style="font-size:.68rem;color:var(--muted)">PV libre (€)</span>
+          <input type="number" id="tabcom_pv_inp" class="extra-num" value="99" min="0" step="1" oninput="recalc();" onchange="recalc();" style="color:var(--accent2);width:100px">
+        </div>
+      </div>
     </div>
   </div>
 
@@ -371,17 +494,12 @@
         <span style="font-size:.8rem;color:var(--muted)">Goulotte GTL avec couvercle</span>
         <div id="gtl_pa_col" style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
           <span style="font-size:.68rem;color:var(--muted)">PA (€)</span>
-          <input type="number" id="gtl_pa_inp" class="extra-num" value="65" min="0" step="1" oninput="recalc();" onchange="recalc();" style="width:100px">
+          <input type="number" id="gtl_pa_inp" class="extra-num" value="60" min="0" step="1" oninput="recalc();" onchange="recalc();" style="width:100px">
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
           <span style="font-size:.68rem;color:var(--muted)">PV libre (€)</span>
           <input type="number" id="gtl_pv_inp" class="extra-num" value="99" min="0" step="1" oninput="recalc();" onchange="recalc();" style="width:100px;color:var(--accent2)">
         </div>
-      </div>
-      <div id="gtl_mo_row" style="display:flex;align-items:center;gap:12px;font-size:.78rem;color:var(--muted)">
-        <span>Temps pose MO (min)</span>
-        <input type="number" id="gtl_min" class="extra-num" value="18" min="0" step="1" oninput="recalc();" style="width:70px;color:var(--text)">
-        <span style="margin-left:auto;font-size:.72rem">Tarif MO = prix heure / 60 × minutes</span>
       </div>
     </div>
   </div>
@@ -408,6 +526,7 @@
     <div class="rrow"><span class="rl">Appareillage suppl. (achat)</span><span class="rv" id="r_app_achat">—</span></div>
     <div class="rrow"><span class="rl">Appareillage suppl. (vente)</span><span class="rv" id="r_app_vente">—</span></div>
     <div class="rrow"><span class="rl">GTL (vente)</span><span class="rv" id="r_gtl_vente">—</span></div>
+    <div class="rrow" style="display:none"><span class="rl">Tab. communication (vente)</span><span class="rv" id="r_tabcom_vente">—</span></div>
     <div class="rrow"><span class="rl">Transport (vente)</span><span class="rv" id="r_trsp_vente">—</span></div>
     <div class="rrow"><span class="rl">Total points électriques</span><span class="rv" id="r_pts">—</span></div>
     <div class="rrow"><span class="rl">Total matière brute</span><span class="rv" id="r_mat">—</span></div>
@@ -417,6 +536,15 @@
     <div class="rrow tot" ondblclick="modifierPrixHT()" style="cursor:pointer" title="Double-clic pour modifier"><span class="rl">PRIX TOTAL HT</span><span class="rv" id="r_tot_inp">—</span><span id="r_tot" style="display:none">—</span></div>
     <div class="rrow tot" style="border-top:1px solid rgba(240,165,0,.3)"><span class="rl">PRIX TOTAL TTC (TVA 20%)</span><span class="rv" id="r_ttc">—</span></div>
     <div id="r_transport_mention" class="rrow rrow-mention" style="font-style:italic;font-size:.85rem;color:var(--text);justify-content:center;padding:8px 0;border-top:1px solid var(--border)"></div>
+    <div id="r_conformite_row" class="rrow" style="padding:10px 16px;align-items:flex-start;gap:10px;display:none;border-top:1px solid rgba(255,100,100,.3);background:rgba(255,80,80,.05)">
+      <span style="font-size:.82rem;color:#c0392b;font-style:italic">⚠ Attention, cette pieuvre est conforme à votre demande mais n'est pas conforme à la norme C15-100.</span>
+    </div>
+  </div>
+
+  <!-- Checkbox conformité -->
+  <div class="no-print" style="display:flex;align-items:center;gap:10px;padding:10px 16px;margin-top:-8px;background:rgba(255,80,80,.04);border:1px solid rgba(255,100,100,.2);border-radius:0 0 6px 6px;margin-bottom:20px">
+    <input type="checkbox" id="chk_conformite" onchange="toggleConformite()" style="width:16px;height:16px;cursor:pointer;accent-color:#c0392b">
+    <label for="chk_conformite" style="font-size:.8rem;color:#c0392b;font-style:italic;cursor:pointer">Afficher avertissement non-conformité C15-100 sur le PDF</label>
   </div>
 
   <!-- Barre d'actions -->
@@ -495,11 +623,12 @@ var PIECES = [
     {id:'pdr',   label:'Porte de garage liaison equip. (2.5mm2)', min:0, nf:4, pf:'fil25', pi:'ict20', L:20}
   ]},
   {key:'exterieur', label:'Exterieur', lignes:[
-    {id:'pext',  label:'Prises exterieures 16A U1000 RO2V',            min:0, nf:1, pf:'u1000_25', pi:'ict20', L:15},
-    {id:'dclext',label:'Point lumineux exterieur U1000 (1.5mm2)',      min:0, nf:1, pf:'u1000_15', pi:'ict20', L:10},
-    {id:'bp',    label:'Simple allumage',                               min:1, nf:2, pf:'fil15',    pi:'ict20', L:12},
-    {id:'vv',    label:'Va-et-vient (1.5mm2)',                         min:0, nf:3, pf:'fil15',    pi:'ict20', L:24},
-    {id:'vvv',   label:'Va-et-vient a voyant avec neutre (1.5mm2)',    min:0, nf:4, pf:'fil15',    pi:'ict20', L:15}
+    {id:'pext',   label:'Prises exterieures 16A U1000 RO2V',              min:0, nf:1, pf:'u1000_25', pi:'ict20', L:15},
+    {id:'dclext', label:'Point lumineux exterieur U1000 (1.5mm2)',         min:0, nf:1, pf:'u1000_15', pi:'ict20', L:10},
+    {id:'dcldet', label:'Point lumineux exterieur sur detection (1.5mm2)', min:0, nf:1, pf:'u1000_15', pi:'ict20', L:10},
+    {id:'bp',     label:'Simple allumage',                                 min:1, nf:2, pf:'fil15',    pi:'ict20', L:12},
+    {id:'vv',     label:'Va-et-vient (1.5mm2)',                            min:0, nf:3, pf:'fil15',    pi:'ict20', L:24},
+    {id:'vvv',    label:'Va-et-vient a voyant avec neutre (1.5mm2)',       min:0, nf:4, pf:'fil15',    pi:'ict20', L:15}
   ]},
   {key:'cellier', label:'Cellier', lignes:[
     {id:'p20',   label:'Prises 16A 2P+T',         min:2, nf:3, pf:'fil25', pi:'ict20', L:15},
@@ -536,6 +665,7 @@ var LIGNES_DIRECTES = [
   {id:'therm', label:'Thermostat (1.5mm2)',                          min:0, nf:3, pf:'fil15',    pi:'ict20', L:20},
   {id:'div15', label:'Alimentation diverse 3g1.5mm2',                min:0, nf:3, pf:'fil15',    pi:'ict20', L:20},
   {id:'div25', label:'Alimentation diverse 3g2.5mm2',                min:0, nf:3, pf:'fil25',    pi:'ict20', L:20},
+  {id:'split', label:'Alimentation split (3g2.5mm2)',                min:0, nf:3, pf:'fil25',    pi:'ict20', L:20},
   {id:'div6',  label:'Alimentation diverse 3g6mm2',                  min:0, nf:3, pf:'fil6',     pi:'ict25', L:20},
   {id:'div415',label:'Alimentation diverse 4g1.5mm2',                min:0, nf:4, pf:'fil15',    pi:'ict20', L:20}
 ];
@@ -867,6 +997,7 @@ function makePieceLignesDirectes(){
   tbl.appendChild(thead);
 
   var tbody = document.createElement('tbody');
+  var DIV_IDS = ['div15','div25','div6','div415'];
   for(var i=0; i<LIGNES_DIRECTES.length; i++){
     var l = LIGNES_DIRECTES[i];
     var lid = 'ld_'+l.id;
@@ -900,6 +1031,40 @@ function makePieceLignesDirectes(){
     tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3);
     tr.appendChild(td4); tr.appendChild(td5);
     tbody.appendChild(tr);
+
+    // Ligne de désignation pour les alimentations diverses
+    if(DIV_IDS.indexOf(l.id)>=0){
+      (function(lid){
+        var trLabel = document.createElement('tr');
+        trLabel.id = lid+'_label_row';
+        trLabel.style.display = 'none';
+        var tdLabel = document.createElement('td');
+        tdLabel.colSpan = 5;
+        tdLabel.style.paddingLeft = '24px';
+        tdLabel.style.paddingBottom = '4px';
+        var inp = document.createElement('input');
+        inp.type = 'text';
+        inp.id = lid+'_label';
+        inp.placeholder = 'Désignation de l\'alimentation...';
+        inp.style.cssText = 'width:100%;background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--text);font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:3px 8px;outline:none';
+        tdLabel.appendChild(inp);
+        trLabel.appendChild(tdLabel);
+        tbody.appendChild(trLabel);
+
+        // Afficher/masquer selon quantité
+        var inQtyRef = document.getElementById ? null : null;
+        setTimeout(function(){
+          var qEl = document.getElementById(lid+'_q');
+          if(qEl){
+            qEl.addEventListener('input', function(){
+              var row = document.getElementById(lid+'_label_row');
+              if(row) row.style.display = (parseInt(this.value)||0) > 0 ? 'table-row' : 'none';
+              recalc();
+            });
+          }
+        }, 0);
+      })(lid);
+    }
   }
   tbl.appendChild(tbody);
   body.appendChild(tbl);
@@ -1040,6 +1205,7 @@ var PA_APP = {
   chaud:0,
   p20_ext: 7.01,
   dcl_ext: 2.12,
+  dcldet:  2.12,
   bp_ext:  6.59
 };
 
@@ -1097,6 +1263,61 @@ function toggleGTL(){
   recalc();
 }
 
+function applyMinsChantier(){
+  var type = document.getElementById('ch_type') ? document.getElementById('ch_type').value : 'neuf';
+  var neuf = type === 'neuf';
+
+  // RJ45 séjour : min 2 si neuf, 0 si rénovation
+  var sejRj = document.getElementById('sejour_rj_min');
+  if(sejRj){ sejRj.value = neuf ? 2 : 0; }
+  var sejRjQ = document.getElementById('sejour_rj_q');
+  if(sejRjQ && neuf && (parseInt(sejRjQ.value)||0) < 2) sejRjQ.value = 2;
+
+  // RJ45 chambres : min 1 si neuf, 0 si rénovation
+  var nb = parseInt(document.getElementById('nb_ch') ? document.getElementById('nb_ch').value : 0) || 0;
+  for(var i=1; i<=nb; i++){
+    var minEl = document.getElementById('ch'+i+'_rj_min');
+    if(minEl){ minEl.value = neuf ? 1 : 0; }
+    var qEl = document.getElementById('ch'+i+'_rj_q');
+    if(qEl && neuf && (parseInt(qEl.value)||0) < 1) qEl.value = 1;
+  }
+  recalc();
+}
+
+function toggleConformite(){
+  var chk = document.getElementById('chk_conformite');
+  var row = document.getElementById('r_conformite_row');
+  if(!row) return;
+  if(chk && chk.checked){
+    row.style.display = 'flex';
+    row.classList.add('visible');
+  } else {
+    row.style.display = 'none';
+    row.classList.remove('visible');
+  }
+}
+
+function toggleTrappe(){
+  var val = document.getElementById('ch_trappe') ? document.getElementById('ch_trappe').value : 'non';
+  var row = document.getElementById('ch_trappe_loc_row');
+  if(row) row.style.display = val==='oui' ? 'flex' : 'none';
+}
+
+function toggleChauffageAutre(){
+  var val = document.getElementById('ch_chauffage') ? document.getElementById('ch_chauffage').value : 'elec';
+  var row = document.getElementById('ch_chauffage_autre_row');
+  if(row) row.style.display = val==='autre' ? 'flex' : 'none';
+}
+
+function toggleTabCom(){
+  var val = document.getElementById('opt_tabcom') ? document.getElementById('opt_tabcom').value : 'non';
+  var row = document.getElementById('tabcom-row');
+  if(row) row.style.display = val==='oui' ? 'grid' : 'none';
+  var rrow = document.getElementById('r_tabcom_vente');
+  if(rrow && rrow.parentNode) rrow.parentNode.style.display = val==='oui' ? 'flex' : 'none';
+  recalc();
+}
+
 function modifierPrixHT(){
   var el=document.getElementById('r_tot_inp');
   var current=el?el.textContent.replace(' EUR','').replace(',','.').trim():'0';
@@ -1136,7 +1357,8 @@ function recalcTTCCore(ht){
   var appS=appSEl?(parseFloat(appSEl.textContent)||0):0;
   var heureV=parseFloat(document.getElementById('p_heure').value)||45;
   var moH=mo>0&&heureV>0?mo/heureV:0;
-  var coutMO=moH*27;
+  var heureAchat2=parseFloat(document.getElementById("p_heure_achat")?document.getElementById("p_heure_achat").value:27)||27;
+  var coutMO=moH*heureAchat2;
   var marge=ht-mat-tabA-appA-appS-coutMO;
   var margeP=ht>0?(marge/ht*100).toFixed(1):'0';
   var margeEl=document.getElementById('r_marge');
@@ -1253,6 +1475,19 @@ var _jsonRestoreValues = null; // valeurs à restaurer lors du prochain buildAll
 
 function buildAll(){
   var cont = document.getElementById('pieces');
+
+  // Sauvegarder les quantités et longueurs existantes avant de tout recréer
+  if(!_jsonRestoreValues){
+    var snapshot = {pieces:{}, longueurs:{}, ld:{}};
+    cont.querySelectorAll('input.iqty').forEach(function(el){ if(el.id) snapshot.pieces[el.id]=el.value; });
+    cont.querySelectorAll('input.ilng').forEach(function(el){ if(el.id) snapshot.longueurs[el.id]=el.value; });
+    // lignes directes aussi (hors du cont mais dans la page)
+    document.querySelectorAll('input.iqty').forEach(function(el){ if(el.id && el.id.indexOf('ld_')===0) snapshot.ld[el.id]=el.value; });
+    if(Object.keys(snapshot.pieces).length > 0 || Object.keys(snapshot.ld).length > 0){
+      _jsonRestoreValues = snapshot;
+    }
+  }
+
   cont.innerHTML = '';
 
   // Pièces fixes conditionnelles
@@ -1307,6 +1542,8 @@ function buildAll(){
   }
 
   recalc();
+  // Appliquer les mins selon type de chantier
+  if(typeof applyMinsChantier === 'function') applyMinsChantier();
 }
 
 function recalc(){
@@ -1449,16 +1686,28 @@ function recalc(){
   var gtlVente = gtlRes ? gtlRes.vente : 0;
   matFact += gtlVente;
 
+  // Tableau communication
+  var optTabCom = document.getElementById('opt_tabcom') ? document.getElementById('opt_tabcom').value : 'non';
+  var tabComPa = 0, tabComPv = 0;
+  if(optTabCom==='oui'){
+    var tcPaEl = document.getElementById('tabcom_pa_inp');
+    var tcPvEl = document.getElementById('tabcom_pv_inp');
+    tabComPa = tcPaEl ? (parseFloat(tcPaEl.value)||0) : 0;
+    tabComPv = tcPvEl ? (parseFloat(tcPvEl.value)||tabComPa*coefV) : tabComPa*coefV;
+    matFact += tabComPv;
+  }
+
   // Transport zones
   var trspVente = calcTransport();
   matFact += trspVente;
 
   var total = matFact + moFact;
-  var coutReelMO = (totTemps/60) * 27;
+  var heureAchat = parseFloat(document.getElementById("p_heure_achat") ? document.getElementById("p_heure_achat").value : 27) || 27;
+  var coutReelMO = (totTemps/60) * heureAchat;
   // Marge = PV - matiere brute - achat tableau - achat appareillage - cout reel MO - GTL achat - transport (PA = PV)
   var appSupPV = optApp==='oui' ? resApp.vente : 0;
   var appSupPA = optApp==='oui' ? resApp.achat : 0;
-  var marge = total - totMat - (optTab==='oui'?tabPa:0) - autoPAForMarge - appSupPA - coutReelMO - gtlAchat - trspVente;
+  var marge = total - totMat - (optTab==='oui'?tabPa:0) - autoPAForMarge - appSupPA - coutReelMO - gtlAchat - trspVente - tabComPa;
   var margeP = total > 0 ? (marge/total*100).toFixed(1) : '0';
 
   function sv(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
@@ -1474,6 +1723,7 @@ function recalc(){
   sv('r_app_achat', fmt2(resApp.achat));
   sv('r_app_vente', fmt2(resApp.vente));
   sv('r_gtl_vente', fmt2(gtlVente));
+  sv('r_tabcom_vente', fmt2(tabComPv));
   sv('r_trsp_vente', fmt2(trspVente));
 
   // Mention transport sous le prix HT
@@ -1521,14 +1771,11 @@ function recalcGTL(){
   var optGtl = document.getElementById('opt_gtl') ? document.getElementById('opt_gtl').value : 'oui';
   if(optGtl==='non') return {achat:0, vente:0};
   var paEl=document.getElementById('gtl_pa_inp');
-  var minEl=document.getElementById('gtl_min');
   var pvInpEl=document.getElementById('gtl_pv_inp');
   if(!paEl) return {achat:0, vente:0};
   var pa=parseFloat(paEl.value)||0;
-  var mins=parseFloat(minEl?minEl.value:18)||18;
-  var pvAuto=pa*coef()+(mins/60)*heure();
   var pvForce=pvInpEl&&pvInpEl.value!==''?parseFloat(pvInpEl.value):null;
-  var pv=pvForce!==null?pvForce:pvAuto;
+  var pv=pvForce!==null?pvForce:pa*coef();
   return {achat:pa, vente:pv};
 }
 
@@ -1901,8 +2148,6 @@ renderTransport();
 </div>
 </body>
 </html>
-
-
 
 
 
