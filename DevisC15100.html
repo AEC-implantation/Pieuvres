@@ -1,6 +1,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -102,6 +103,16 @@
   /* Infos chantier */
   .infos-bar{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:12px 16px;margin-bottom:16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
   @media print {
+    body.pdf-client .recap { display:none !important; }
+    body.pdf-client #section-pieuvre { display:none !important; }
+    body.pdf-client #section-appareillage { display:none !important; }
+    body.pdf-client #section-tableau { display:none !important; }
+    body.pdf-client #section-gtl { display:none !important; }
+    body.pdf-client #section-chantier { display:block !important; }
+    body.pdf-client #section-autres-fournitures { display:block !important; }
+    body.pdf-client .params-bar { display:none !important; }
+    body.pdf-client .infos-bar { display:none !important; }
+
     /* Reset */
     body{ background:white; padding:8px 12px; font-family:Arial,sans-serif; font-size:9pt; }
 
@@ -393,6 +404,18 @@
 
       </div>
 
+      <!-- Cases matériel et port -->
+      <div style="display:flex;gap:20px;margin-top:12px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.82rem;color:var(--text)">
+          <input type="checkbox" id="ch_materiel" style="width:16px;height:16px;cursor:pointer">
+          Matériel à enlever par le client
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.82rem;color:var(--text)">
+          <input type="checkbox" id="ch_port" style="width:16px;height:16px;cursor:pointer">
+          Port compris
+        </label>
+      </div>
+
       <!-- Zone libre renseignements divers -->
       <div style="margin-top:14px">
         <span style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Renseignements divers</span>
@@ -404,6 +427,15 @@
 
   <!-- Conteneur pièces -->
   <div id="pieces"></div>
+
+  <!-- Autres fournitures (PDF client uniquement) -->
+  <div class="extra-section" id="section-autres-fournitures" style="display:none">
+    <div class="extra-hdr"><span class="tag" style="background:#555">+</span><h3>Autres fournitures</h3></div>
+    <div class="extra-body">
+      <div id="autres-fournitures-content" style="display:flex;flex-direction:column;gap:8px;font-size:.82rem;color:var(--text)"></div>
+      <div style="margin-top:14px;display:flex;gap:20px;flex-wrap:wrap" id="autres-mentions"></div>
+    </div>
+  </div>
 
   <!-- Prix Pieuvre -->
   <div class="extra-section" id="section-pieuvre">
@@ -443,17 +475,20 @@
           <input type="number" id="tab_pv_inp" class="extra-num" value="0.00" min="0" step="1" oninput="this.dataset.userSet='1';recalc();" onchange="this.dataset.userSet='1';this.value=parseFloat(this.value).toFixed(2);recalc();" style="color:var(--accent2);width:100px">
         </div>
       </div>
-      <div id="tabcom-row" style="display:none;grid-template-columns:1fr 130px 110px 110px;gap:12px;align-items:center;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)">
-        <span style="font-size:.8rem;color:var(--muted)">Tableau de communication</span>
+      <div id="tabcom-row" style="display:none;grid-template-columns:1fr 130px 110px;gap:12px;align-items:center;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <span style="font-size:.8rem;color:var(--muted)">Coffret de communication</span>
+          <select id="tabcom_choix" onchange="onTabComChoix()" style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.78rem;font-weight:600;padding:3px 8px;outline:none;max-width:260px">
+            <option value="simple">Coffret simple</option>
+            <option value="box">Coffret avec support box</option>
+          </select>
+        </div>
         <div></div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
-          <span style="font-size:.68rem;color:var(--muted)">PA (€)</span>
-          <input type="number" id="tabcom_pa_inp" class="extra-num" value="60" min="0" step="1" oninput="recalc();" onchange="recalc();" style="width:100px">
+          <span style="font-size:.68rem;color:var(--muted)">PV (€)</span>
+          <input type="number" id="tabcom_pv_inp" class="extra-num" value="110" min="0" step="1" oninput="recalc();" onchange="recalc();" style="color:var(--accent2);width:100px">
         </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
-          <span style="font-size:.68rem;color:var(--muted)">PV libre (€)</span>
-          <input type="number" id="tabcom_pv_inp" class="extra-num" value="99" min="0" step="1" oninput="recalc();" onchange="recalc();" style="color:var(--accent2);width:100px">
-        </div>
+        <input type="number" id="tabcom_pa_inp" value="75" min="0" step="1" oninput="recalc();" onchange="recalc();" style="display:none">
       </div>
     </div>
   </div>
@@ -555,6 +590,7 @@
     <button onclick="exporterJSON()" class="no-print" style="background:#2a7fd4;border:none;border-radius:4px;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 20px;cursor:pointer">&#8659; Export JSON</button>
     <button onclick="importerJSON()" class="no-print" style="background:#2a7fd4;border:none;border-radius:4px;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 20px;cursor:pointer">&#8657; Import JSON</button>
     <input type="file" id="json_import_input" accept=".json" style="display:none" onchange="chargerFichierJSON(this)">
+    <button onclick="imprimerPDFClient()" class="no-print" style="background:#2e7d32;border:none;border-radius:4px;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 20px;cursor:pointer">&#128196; PDF Client</button>
     <button onclick="imprimerPDF()" class="no-print" style="background:#5577aa;border:none;border-radius:4px;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 20px;cursor:pointer">&#128438; PDF</button>
     <button onclick="exportExcel()" class="no-print" style="background:#1D9E75;border:none;border-radius:4px;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 20px;cursor:pointer">&#128202; Excel</button>
     <button onclick="envoyerC15()" style="background:var(--accent);border:none;border-radius:4px;color:#0f1117;font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 24px;cursor:pointer">&#9993; Envoyer le devis</button>
@@ -573,79 +609,79 @@ function coef(){return parseFloat(document.getElementById('p_coef').value)||1.4;
 // Dotations C15-100
 var PIECES = [
   {key:'sejour', label:'Sejour / Salon', lignes:[
-    {id:'p20',   label:'Prises 16A 2P+T',                  min:5, nf:3, pf:'fil25',   pi:'ict20', L:15},
+    {id:'p20',   label:'Prises 16A 2P+T',                  min:5, nf:3, pf:'fil25',   pi:'ict20', L:13},
     {id:'p20d',  label:'Prises 16A 2P+T double',           min:0, nf:3, pf:'fil25',   pi:'ict20', L:15},
     {id:'p20t',  label:'Prises 16A 2P+T triple',           min:0, nf:3, pf:'fil25',   pi:'ict20', L:15},
     {id:'p20q',  label:'Prises 16A 2P+T quadruple',        min:0, nf:3, pf:'fil25',   pi:'ict20', L:15},
     {id:'dcl',   label:'DCL plafond',            min:1, nf:3, pf:'fil15',   pi:'ict25', L:10},
-    {id:'vv',    label:'Va-et-vient (1.5mm2)',   min:1, nf:3, pf:'fil15',   pi:'ict20', L:24},
+    {id:'vv',    label:'Va-et-vient (1.5mm2)',   min:1, nf:3, pf:'fil15',   pi:'ict20', L:18},
     {id:'vvtv',  label:'Va-et-vient sur televariateur (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:24},
     {id:'perm',  label:'Permutateur par point de commande (1.5mm2)', min:0, nf:4, pf:'fil15', pi:'ict20', L:15},
     {id:'bp',    label:'Simple allumage / BP',   min:0, nf:2, pf:'fil15',   pi:'ict20', L:12},
     {id:'bpv',   label:'Simple allumage a voyant avec neutre (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:12},
     {id:'dbl',   label:'Double allumage (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:12},
-    {id:'tv',    label:'Prise TV multimedia',    min:0, nf:1, pf:'grad3tv', pi:'ict20', L:15},
-    {id:'rj',    label:'Prises RJ45 Grade 3TV',  min:0, nf:1, pf:'grad3tv', pi:'ict20', L:15},
-    {id:'vr',    label:'Volets roulants elec (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:20},
-    {id:'chauf', label:'Chauffage elec sejour fil pilote (1.5mm2)', min:0, nf:4, pf:'fil15', pi:'ict20', L:20},
+    {id:'tv',    label:'Prise TV multimedia',    min:0, nf:1, pf:'grad3tv', pi:'ict20', L:16},
+    {id:'rj',    label:'Prises RJ45 Grade 3TV',  min:0, nf:1, pf:'grad3tv', pi:'ict20', L:16},
+    {id:'vr',    label:'Volets roulants elec (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:12},
+    {id:'chauf', label:'Chauffage elec sejour fil pilote (1.5mm2)', min:0, nf:4, pf:'fil15', pi:'ict20', L:16},
     {id:'therm', label:'Thermostat (1.5mm2)',                        min:0, nf:3, pf:'fil15', pi:'ict20', L:20}
   ]},
   {key:'cuisine', label:'Cuisine', lignes:[
-    {id:'p20',   label:'Prises 16A 2P+T',                  min:6, nf:3, pf:'fil25', pi:'ict20', L:15},
+    {id:'p20',   label:'Prises 16A 2P+T',                  min:6, nf:3, pf:'fil25', pi:'ict20', L:13},
     {id:'p20d',  label:'Prises 16A 2P+T double',           min:0, nf:3, pf:'fil25', pi:'ict20', L:15},
     {id:'p20t',  label:'Prises 16A 2P+T triple',           min:0, nf:3, pf:'fil25', pi:'ict20', L:15},
     {id:'p20q',  label:'Prises 16A 2P+T quadruple',        min:0, nf:3, pf:'fil25', pi:'ict20', L:15},
-    {id:'p32',   label:'Prise 32A (plaque cuisson)', min:1, nf:3, pf:'fil6',  pi:'ict25', L:20},
+    {id:'p32',   label:'Prise 32A (plaque cuisson)', min:1, nf:3, pf:'fil6',  pi:'ict25', L:16},
     {id:'lave',  label:'Lave-vaisselle 20A',     min:1, nf:3, pf:'fil25', pi:'ict20', L:20},
     {id:'dcl',   label:'DCL plafond',            min:1, nf:3, pf:'fil15', pi:'ict25', L:10},
     {id:'hott',  label:'Hotte circuit dedie',    min:1, nf:3, pf:'fil15', pi:'ict20', L:15},
     {id:'frig',  label:'Prise specialisee 20A',   min:1, nf:3, pf:'fil25', pi:'ict20', L:15},
-    {id:'bp',    label:'Simple allumage / BP',   min:1, nf:2, pf:'fil15', pi:'ict20', L:10},
+    {id:'bp',    label:'Simple allumage / BP',   min:1, nf:2, pf:'fil15', pi:'ict20', L:12},
     {id:'bpv',   label:'Simple allumage a voyant avec neutre (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:12},
     {id:'dbl',   label:'Double allumage (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:12},
-    {id:'vv',    label:'Va-et-vient (1.5mm2)',   min:0, nf:3, pf:'fil15', pi:'ict20', L:24},
+    {id:'vv',    label:'Va-et-vient (1.5mm2)',   min:0, nf:3, pf:'fil15', pi:'ict20', L:18},
     {id:'bpvmc', label:'BP VMC cuisine (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:12},
-    {id:'vr',    label:'Volets roulants elec (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:20},
-    {id:'chauf', label:'Chauffage electrique',   min:0, nf:4, pf:'fil15', pi:'ict20', L:20}
+    {id:'vr',    label:'Volets roulants elec (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:12},
+    {id:'chauf', label:'Chauffage electrique',   min:0, nf:4, pf:'fil15', pi:'ict20', L:16}
   ]},
   {key:'couloir', label:'Couloir / Degagement', lignes:[
     {id:'dcl',   label:'DCL plafond',            min:1, nf:3, pf:'fil15', pi:'ict25', L:10},
-    {id:'vv',    label:'Va-et-vient (1.5mm2)',   min:1, nf:3, pf:'fil15', pi:'ict20', L:24},
+    {id:'vv',    label:'Va-et-vient (1.5mm2)',   min:1, nf:3, pf:'fil15', pi:'ict20', L:18},
     {id:'p20',   label:'Prise 16A 2P+T',         min:1, nf:3, pf:'fil25', pi:'ict20', L:15},
-    {id:'sonn',  label:'Sonnerie (1.5mm2)',       min:0, nf:3, pf:'fil15', pi:'ict20', L:20},
+    {id:'sonn',  label:'Sonnerie (1.5mm2)',       min:0, nf:3, pf:'fil15', pi:'ict20', L:15},
     {id:'therm', label:'Thermostat (1.5mm2)',     min:0, nf:3, pf:'fil15', pi:'ict20', L:20}
   ]},
   {key:'garage', label:'Garage', lignes:[
-    {id:'p20',   label:'Prises 16A 2P+T',        min:2, nf:3, pf:'fil25', pi:'ict20', L:15},
+    {id:'p20',   label:'Prises 16A 2P+T',        min:2, nf:3, pf:'fil25', pi:'ict20', L:13},
     {id:'dcl',   label:'DCL plafond',             min:1, nf:3, pf:'fil15', pi:'ict25', L:10},
-    {id:'bp',    label:'Simple allumage',         min:1, nf:2, pf:'fil15', pi:'ict20', L:10},
-    {id:'vv',    label:'Va-et-vient (1.5mm2)',    min:0, nf:3, pf:'fil15', pi:'ict20', L:24},
-    {id:'pdr',   label:'Porte de garage liaison equip. (2.5mm2)', min:0, nf:4, pf:'fil25', pi:'ict20', L:20}
+    {id:'bp',    label:'Simple allumage',         min:1, nf:2, pf:'fil15', pi:'ict20', L:12},
+    {id:'vv',    label:'Va-et-vient (1.5mm2)',    min:0, nf:3, pf:'fil15', pi:'ict20', L:18},
+    {id:'pdr',   label:'Porte de garage liaison equip. (2.5mm2)', min:0, nf:4, pf:'fil25', pi:'ict20', L:15}
   ]},
   {key:'exterieur', label:'Exterieur', lignes:[
     {id:'pext',   label:'Prises exterieures 16A U1000 RO2V',              min:0, nf:1, pf:'u1000_25', pi:'ict20', L:15},
     {id:'dclext', label:'Point lumineux exterieur U1000 (1.5mm2)',         min:0, nf:1, pf:'u1000_15', pi:'ict20', L:10},
     {id:'dcldet', label:'Point lumineux exterieur sur detection (1.5mm2)', min:0, nf:1, pf:'u1000_15', pi:'ict20', L:10},
     {id:'bp',     label:'Simple allumage',                                 min:1, nf:2, pf:'fil15',    pi:'ict20', L:12},
-    {id:'vv',     label:'Va-et-vient (1.5mm2)',                            min:0, nf:3, pf:'fil15',    pi:'ict20', L:24},
+    {id:'vv',     label:'Va-et-vient (1.5mm2)',                            min:0, nf:3, pf:'fil15',    pi:'ict20', L:18},
     {id:'vvv',    label:'Va-et-vient a voyant avec neutre (1.5mm2)',       min:0, nf:4, pf:'fil15',    pi:'ict20', L:15}
   ]},
   {key:'cellier', label:'Cellier', lignes:[
-    {id:'p20',   label:'Prises 16A 2P+T',         min:2, nf:3, pf:'fil25', pi:'ict20', L:15},
+    {id:'p20',   label:'Prises 16A 2P+T',         min:2, nf:3, pf:'fil25', pi:'ict20', L:13},
     {id:'frig',  label:'Prise specialisee 20A',   min:0, nf:3, pf:'fil25', pi:'ict20', L:15},
     {id:'dcl',   label:'DCL plafond',              min:1, nf:3, pf:'fil15', pi:'ict25', L:8},
-    {id:'bp',    label:'Simple allumage',          min:1, nf:2, pf:'fil15', pi:'ict20', L:8},
+    {id:'bp',    label:'Simple allumage',          min:1, nf:2, pf:'fil15', pi:'ict20', L:12},
     {id:'lave',  label:'Prise specialisee 20A 2P+T', min:0, nf:3, pf:'fil25', pi:'ict20', L:20}
   ]},
   {key:'bureau', label:'Bureau', lignes:[
-    {id:'p20',   label:'Prises 16A 2P+T',         min:4, nf:3, pf:'fil25',   pi:'ict20', L:15},
+    {id:'p20',   label:'Prises 16A 2P+T',         min:4, nf:3, pf:'fil25',   pi:'ict20', L:13},
     {id:'p20d',  label:'Prises 16A 2P+T double',  min:0, nf:3, pf:'fil25',   pi:'ict20', L:15},
     {id:'p20t',  label:'Prises 16A 2P+T triple',  min:0, nf:3, pf:'fil25',   pi:'ict20', L:15},
-    {id:'rj',    label:'Prises RJ45 Grade 3TV',    min:0, nf:1, pf:'grad3tv', pi:'ict20', L:15},
+    {id:'rj',    label:'Prises RJ45 Grade 3TV',    min:0, nf:1, pf:'grad3tv', pi:'ict20', L:16},
     {id:'dcl',   label:'DCL plafond',              min:1, nf:3, pf:'fil15',   pi:'ict25', L:10},
-    {id:'bp',    label:'Simple allumage',          min:1, nf:2, pf:'fil15',   pi:'ict20', L:10},
-    {id:'vv',    label:'Va-et-vient (1.5mm2)',     min:0, nf:3, pf:'fil15',   pi:'ict20', L:24},
-    {id:'vr',    label:'Volets roulants elec (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:20}
+    {id:'bp',    label:'Simple allumage',          min:1, nf:2, pf:'fil15',   pi:'ict20', L:12},
+    {id:'vv',    label:'Va-et-vient (1.5mm2)',     min:0, nf:3, pf:'fil15',   pi:'ict20', L:18},
+    {id:'vr',    label:'Volets roulants elec (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:12}
   ]}
 ];
 
@@ -657,11 +693,11 @@ var DIVERS = [
 ];
 
 var LIGNES_DIRECTES = [
-  {id:'chaud', label:'Chauffe eau liaison equip. (2.5mm2)',          min:0, nf:4, pf:'fil25',    pi:'ict20', L:20},
-  {id:'vmc',   label:'VMC attente combles (1.5mm2)',                 min:0, nf:4, pf:'fil15',    pi:'ict20', L:20},
+  {id:'chaud', label:'Chauffe eau liaison equip. (2.5mm2)',          min:0, nf:4, pf:'fil25',    pi:'ict20', L:16},
+  {id:'vmc',   label:'VMC attente combles (1.5mm2)',                 min:0, nf:4, pf:'fil15',    pi:'ict20', L:16},
   {id:'pdg',   label:'Porte de garage liaison equip. (2.5mm2)',      min:0, nf:4, pf:'fil25',    pi:'ict20', L:20},
   {id:'pac',   label:'Pompe a chaleur liaison equip. (2.5mm2)',      min:0, nf:3, pf:'fil25',    pi:'ict25', L:20},
-  {id:'clim',  label:'Groupe exterieur clim (6mm2)',                 min:0, nf:3, pf:'fil6',     pi:'ict25', L:20},
+  {id:'clim',  label:'Groupe exterieur clim (6mm2)',                 min:0, nf:3, pf:'fil6',     pi:'ict25', L:16},
   {id:'therm', label:'Thermostat (1.5mm2)',                          min:0, nf:3, pf:'fil15',    pi:'ict20', L:20},
   {id:'div15', label:'Alimentation diverse 3g1.5mm2',                min:0, nf:3, pf:'fil15',    pi:'ict20', L:20},
   {id:'div25', label:'Alimentation diverse 3g2.5mm2',                min:0, nf:3, pf:'fil25',    pi:'ict20', L:20},
@@ -673,32 +709,32 @@ var LIGNES_DIRECTES = [
 var WC_LIGNES = [
   {id:'p20',   label:'Prise 16A 2P+T',           min:0, nf:3, pf:'fil25', pi:'ict20', L:15},
   {id:'dcl',   label:'DCL / plafonnier',          min:1, nf:3, pf:'fil15', pi:'ict25', L:8},
-  {id:'bp',    label:'Simple allumage',           min:1, nf:2, pf:'fil15', pi:'ict20', L:8}
+  {id:'bp',    label:'Simple allumage',           min:1, nf:2, pf:'fil15', pi:'ict20', L:12}
 ];
 
 var CHAMBRE = [
-  {id:'p20',   label:'Prises 16A 2P+T',                  min:3, nf:3, pf:'fil25', pi:'ict20', L:15},
+  {id:'p20',   label:'Prises 16A 2P+T',                  min:3, nf:3, pf:'fil25', pi:'ict20', L:13},
   {id:'p20d',  label:'Prises 16A 2P+T double',           min:0, nf:3, pf:'fil25', pi:'ict20', L:15},
   {id:'p20t',  label:'Prises 16A 2P+T triple',           min:0, nf:3, pf:'fil25', pi:'ict20', L:15},
   {id:'p20q',  label:'Prises 16A 2P+T quadruple',        min:0, nf:3, pf:'fil25', pi:'ict20', L:15},
   {id:'dcl',   label:'DCL plafond',               min:1, nf:3, pf:'fil15', pi:'ict25', L:10},
-  {id:'rj',    label:'Prises RJ45 Grade 3TV',      min:0, nf:1, pf:'grad3tv', pi:'ict20', L:15},
-  {id:'tv',    label:'Prise TV multimedia',         min:0, nf:1, pf:'grad3tv', pi:'ict20', L:15},
-  {id:'vv',    label:'Va-et-vient (1.5mm2)',       min:1, nf:3, pf:'fil15', pi:'ict20', L:24},
-  {id:'bp',    label:'Simple allumage / BP',       min:0, nf:2, pf:'fil15', pi:'ict20', L:10},
-  {id:'vr',    label:'Volets roulants elec (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:20},
-  {id:'chauf', label:'Chauffage elec chambre fil pilote (1.5mm2)', min:0, nf:4, pf:'fil15', pi:'ict20', L:20},
+  {id:'rj',    label:'Prises RJ45 Grade 3TV',      min:0, nf:1, pf:'grad3tv', pi:'ict20', L:16},
+  {id:'tv',    label:'Prise TV multimedia',         min:0, nf:1, pf:'grad3tv', pi:'ict20', L:16},
+  {id:'vv',    label:'Va-et-vient (1.5mm2)',       min:1, nf:3, pf:'fil15', pi:'ict20', L:18},
+  {id:'bp',    label:'Simple allumage / BP',       min:0, nf:2, pf:'fil15', pi:'ict20', L:12},
+  {id:'vr',    label:'Volets roulants elec (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:12},
+  {id:'chauf', label:'Chauffage elec chambre fil pilote (1.5mm2)', min:0, nf:4, pf:'fil15', pi:'ict20', L:16},
   {id:'therm', label:'Thermostat (1.5mm2)',        min:0, nf:3, pf:'fil15', pi:'ict20', L:20}
 ];
 
 var SDB = [
   {id:'p20',   label:'Prise 16A hors volume',     min:1, nf:3, pf:'fil25', pi:'ict20', L:15},
   {id:'dcl',   label:'DCL plafond',               min:1, nf:3, pf:'fil15', pi:'ict25', L:10},
-  {id:'bp',    label:'Simple allumage / BP',      min:1, nf:2, pf:'fil15', pi:'ict20', L:8},
+  {id:'bp',    label:'Simple allumage / BP',      min:1, nf:2, pf:'fil15', pi:'ict20', L:12},
   {id:'dbl',   label:'Double allumage (1.5mm2)',  min:0, nf:3, pf:'fil15', pi:'ict20', L:12},
-  {id:'vv',    label:'Va-et-vient (1.5mm2)',      min:0, nf:3, pf:'fil15', pi:'ict20', L:24},
-  {id:'ss',    label:'Seche-serviettes fil pilote (1.5mm2)', min:0, nf:4, pf:'fil15', pi:'ict20', L:20},
-  {id:'vr',    label:'Volets roulants elec (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:20},
+  {id:'vv',    label:'Va-et-vient (1.5mm2)',      min:0, nf:3, pf:'fil15', pi:'ict20', L:18},
+  {id:'ss',    label:'Seche-serviettes fil pilote (1.5mm2)', min:0, nf:4, pf:'fil15', pi:'ict20', L:16},
+  {id:'vr',    label:'Volets roulants elec (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:12},
   {id:'equip', label:'Liaison equipotentielle',   min:1, nf:2, pf:'fil25', pi:'ict20', L:15}
 ];
 
@@ -1045,7 +1081,7 @@ function makePieceLignesDirectes(){
         var inp = document.createElement('input');
         inp.type = 'text';
         inp.id = lid+'_label';
-        inp.placeholder = 'Désignation de l\'alimentation...';
+        inp.placeholder = "Designation de alimentation";
         inp.style.cssText = 'width:100%;background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--text);font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:3px 8px;outline:none';
         tdLabel.appendChild(inp);
         trLabel.appendChild(tdLabel);
@@ -1307,6 +1343,21 @@ function toggleChauffageAutre(){
   var val = document.getElementById('ch_chauffage') ? document.getElementById('ch_chauffage').value : 'elec';
   var row = document.getElementById('ch_chauffage_autre_row');
   if(row) row.style.display = val==='autre' ? 'flex' : 'none';
+}
+
+function onTabComChoix(){
+  var sel = document.getElementById('tabcom_choix');
+  var pa  = document.getElementById('tabcom_pa_inp');
+  var pv  = document.getElementById('tabcom_pv_inp');
+  if(!sel||!pa||!pv) return;
+  if(sel.value === 'simple'){
+    pa.value = 75;
+    pv.value = 110;
+  } else {
+    pa.value = 100;
+    pv.value = 140;
+  }
+  recalc();
 }
 
 function toggleTabCom(){
@@ -1838,6 +1889,95 @@ function calcTransport(){
   return totVente;
 }
 
+function imprimerPDFClient(){
+  // Remplir entete PDF
+  var cl=document.getElementById('p_client');
+  var se=document.getElementById('p_surface');
+  var et=document.getElementById('p_etages');
+  var phc=document.getElementById('ph_client'); if(phc) phc.textContent=cl?cl.value:'';
+  var phs=document.getElementById('ph_surface_etage');
+  if(phs) phs.textContent=(se?se.value+' m2':'')+' — '+(et&&et.selectedIndex>=0?et.options[et.selectedIndex].text:'');
+  var phd=document.getElementById('ph_date'); if(phd) phd.textContent=new Date().toLocaleDateString('fr-FR');
+
+  // Masquer lignes avec qte=0 ET min=0
+  var rows=document.querySelectorAll('.piece-body tbody tr');
+  for(var i=0;i<rows.length;i++){
+    var inMin=rows[i].querySelector('input.imin');
+    var inQty=rows[i].querySelector('input.iqty');
+    var mn=inMin?(parseInt(inMin.value)||0):0;
+    var qty=inQty?(parseInt(inQty.value)||0):0;
+    if(qty===0){ rows[i].style.display='none'; rows[i].setAttribute('data-phc','1'); }
+  }
+
+  // Construire le contenu "Autres fournitures"
+  var content = document.getElementById('autres-fournitures-content');
+  var mentions = document.getElementById('autres-mentions');
+  if(content){
+    content.innerHTML = '';
+    var opts = [
+      {id:'opt_app',    label:'Appareillage électrique'},
+      {id:'opt_tab',    label:'Tableau électrique'},
+      {id:'opt_gtl',    label:'GTL — Goulotte technique'},
+      {id:'opt_tabcom', label:'Tableau de communication'}
+    ];
+    for(var i=0;i<opts.length;i++){
+      var el=document.getElementById(opts[i].id);
+      if(el && el.value==='oui'){
+        var row=document.createElement('div');
+        row.style.cssText='display:flex;align-items:center;gap:8px;margin-bottom:4px';
+        var chk=document.createElement('span');
+        chk.style.cssText='width:16px;height:16px;border:2px solid #1a2a3a;border-radius:2px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;color:#1a2a3a;flex-shrink:0';
+        chk.textContent='✓';
+        var lbl=document.createElement('span');
+        lbl.textContent=opts[i].label;
+        if(opts[i].id==='opt_tabcom'){
+          var choix=document.getElementById('tabcom_choix');
+          if(choix) lbl.textContent+=' — '+(choix.value==='box'?'Coffret avec support box':'Coffret simple');
+        }
+        row.appendChild(chk); row.appendChild(lbl);
+        content.appendChild(row);
+      }
+    }
+  }
+  if(mentions){
+    mentions.innerHTML='';
+    var matEl=document.getElementById('ch_materiel');
+    var portEl=document.getElementById('ch_port');
+    if(matEl && matEl.checked){
+      var d=document.createElement('div');
+      d.style.cssText='padding:6px 12px;border:1px solid #1a2a3a;border-radius:4px;font-size:.78rem';
+      d.textContent='Matériel à enlever par le client';
+      mentions.appendChild(d);
+    }
+    if(portEl && portEl.checked){
+      var d=document.createElement('div');
+      d.style.cssText='padding:6px 12px;border:1px solid #00c9a7;border-radius:4px;font-size:.78rem;color:#00c9a7';
+      d.textContent='Port compris';
+      mentions.appendChild(d);
+    }
+  }
+
+  // Afficher section autres fournitures et chantier
+  var secAF=document.getElementById('section-autres-fournitures');
+  if(secAF) secAF.style.display='block';
+
+  document.body.classList.add('pdf-client');
+
+  setTimeout(function(){
+    if(!window._printWarned){
+      window._printWarned=true;
+      alert('Dans la fenetre impression : decochez "En-tetes et pieds de page" pour masquer les URL.');
+    }
+    window.print();
+    setTimeout(function(){
+      document.body.classList.remove('pdf-client');
+      if(secAF) secAF.style.display='none';
+      var rs=document.querySelectorAll('[data-phc="1"]');
+      for(var i=0;i<rs.length;i++){ rs[i].style.display=''; rs[i].removeAttribute('data-phc'); }
+    },500);
+  },100);
+}
+
 function imprimerPDF(){
   var cl=document.getElementById('p_client');
   var se=document.getElementById('p_surface');
@@ -2148,6 +2288,8 @@ renderTransport();
 </div>
 </body>
 </html>
+
+
 
 
 
