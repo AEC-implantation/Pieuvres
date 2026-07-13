@@ -2,7 +2,6 @@
 
 
 
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -260,8 +259,7 @@
     <span class="p-label">Surface (m2)</span>
     <input type="number" class="pi" id="p_surface" value="100" min="1" step="1" style="width:70px">
     <span class="p-label">Nb etages</span>
-    <select id="p_etages" onchange="onEtagesChange()" style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:600;padding:4px 8px;outline:none">
-      <option value="studio">Studio</option>
+    <select id="p_etages" style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:600;padding:4px 8px;outline:none">
       <option value="plain">Plain-pied</option>
       <option value="1">1 etage</option>
       <option value="2">2 etages</option>
@@ -272,8 +270,8 @@
 
   <!-- Paramètres globaux -->
   <div class="params-bar">
-    <span id="nb_ch_group"><span class="p-label">Nb chambres</span>
-    <input type="number" id="nb_ch" class="pi-spin" value="2" min="0" max="10" step="1" style="width:58px;-webkit-appearance:auto;appearance:auto;-moz-appearance:auto" oninput="buildAll()" onchange="buildAll()"></span>
+    <span class="p-label">Nb chambres</span>
+    <input type="number" id="nb_ch" class="pi-spin" value="2" min="0" max="10" step="1" style="width:58px;-webkit-appearance:auto;appearance:auto;-moz-appearance:auto" oninput="buildAll()" onchange="buildAll()">
     <span class="p-label">Nb SDB</span>
     <input type="number" id="nb_sdb" class="pi-spin" value="1" min="0" max="5" step="1" style="width:58px;-webkit-appearance:auto;appearance:auto;-moz-appearance:auto" oninput="buildAll()" onchange="buildAll()">
     <span class="p-label">Nb WC</span>
@@ -646,13 +644,6 @@ var PIECES = [
     {id:'vr',    label:'Volets roulants elec (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:12},
     {id:'chauf', label:'Chauffage electrique',   min:0, nf:4, pf:'fil15', pi:'ict20', L:16}
   ]},
-  {key:'hall', label:'Hall d\'entree', lignes:[
-    {id:'dcl',   label:'DCL plafond',            min:1, nf:3, pf:'fil15', pi:'ict25', L:10},
-    {id:'vv',    label:'Va-et-vient (1.5mm2)',   min:1, nf:3, pf:'fil15', pi:'ict20', L:18},
-    {id:'p20',   label:'Prise 16A 2P+T',         min:1, nf:3, pf:'fil25', pi:'ict20', L:15},
-    {id:'sonn',  label:'Sonnerie (1.5mm2)',       min:0, nf:3, pf:'fil15', pi:'ict20', L:15},
-    {id:'therm', label:'Thermostat (1.5mm2)',     min:0, nf:3, pf:'fil15', pi:'ict20', L:20}
-  ]},
   {key:'couloir', label:'Couloir / Degagement', lignes:[
     {id:'dcl',   label:'DCL plafond',            min:1, nf:3, pf:'fil15', pi:'ict25', L:10},
     {id:'vv',    label:'Va-et-vient (1.5mm2)',   min:1, nf:3, pf:'fil15', pi:'ict20', L:18},
@@ -669,7 +660,7 @@ var PIECES = [
   ]},
   {key:'exterieur', label:'Exterieur', lignes:[
     {id:'pext',   label:'Prises exterieures 16A U1000 RO2V',              min:0, nf:1, pf:'u1000_25', pi:'ict20', L:15},
-    {id:'dclext', label:'Point lumineux exterieur U1000 (1.5mm2)',         min:1, nf:1, pf:'u1000_15', pi:'ict20', L:10},
+    {id:'dclext', label:'Point lumineux exterieur U1000 (1.5mm2)',         min:0, nf:1, pf:'u1000_15', pi:'ict20', L:10},
     {id:'dcldet', label:'Point lumineux exterieur sur detection (1.5mm2)', min:0, nf:1, pf:'u1000_15', pi:'ict20', L:10},
     {id:'bp',     label:'Simple allumage',                                 min:1, nf:2, pf:'fil15',    pi:'ict20', L:12},
     {id:'vv',     label:'Va-et-vient (1.5mm2)',                            min:0, nf:3, pf:'fil15',    pi:'ict20', L:18},
@@ -712,7 +703,8 @@ var LIGNES_DIRECTES = [
   {id:'div25', label:'Alimentation diverse 3g2.5mm2',                min:0, nf:3, pf:'fil25',    pi:'ict20', L:20},
   {id:'split', label:'Alimentation split (3g2.5mm2)',                min:0, nf:3, pf:'fil25',    pi:'ict20', L:20},
   {id:'div6',  label:'Alimentation diverse 3g6mm2',                  min:0, nf:3, pf:'fil6',     pi:'ict25', L:20},
-  {id:'div415',label:'Alimentation diverse 4g1.5mm2',                min:0, nf:4, pf:'fil15',    pi:'ict20', L:20}
+  {id:'div415',label:'Alimentation diverse 4g1.5mm2',                min:0, nf:4, pf:'fil15',    pi:'ict20', L:20},
+  {id:'vr_ld',  label:'Volets roulants (3g1.5mm2)',               min:0, nf:3, pf:'fil15',    pi:'ict20', L:12}
 ];
 
 var WC_LIGNES = [
@@ -1042,7 +1034,7 @@ function makePieceLignesDirectes(){
   tbl.appendChild(thead);
 
   var tbody = document.createElement('tbody');
-  var DIV_IDS = ['div15','div25','div6','div415'];
+  var DIV_IDS = ['div15','div25','div6','div415','split','vr_ld'];
   for(var i=0; i<LIGNES_DIRECTES.length; i++){
     var l = LIGNES_DIRECTES[i];
     var lid = 'ld_'+l.id;
@@ -1097,17 +1089,29 @@ function makePieceLignesDirectes(){
         tbody.appendChild(trLabel);
 
         // Afficher/masquer selon quantité
-        var inQtyRef = document.getElementById ? null : null;
-        setTimeout(function(){
-          var qEl = document.getElementById(lid+'_q');
-          if(qEl){
-            qEl.addEventListener('input', function(){
-              var row = document.getElementById(lid+'_label_row');
-              if(row) row.style.display = (parseInt(this.value)||0) > 0 ? 'table-row' : 'none';
-              recalc();
-            });
+        var qElRef = document.getElementById(lid+'_q');
+        if(!qElRef){
+          // Pas encore dans le DOM - on cherche dans le tbody courant
+          qElRef = tbody.querySelector('#'+lid+'_q');
+        }
+        (function(lidRef, trLabelRef){
+          function updateLabelRow(){
+            var qEl = document.getElementById(lidRef+'_q') || tbody.querySelector('#'+lidRef+'_q');
+            if(!qEl) return;
+            trLabelRef.style.display = (parseInt(qEl.value)||0) > 0 ? 'table-row' : 'none';
+            recalc();
           }
-        }, 0);
+          // Attacher les listeners après insertion dans le DOM
+          setTimeout(function(){
+            var qEl = document.getElementById(lidRef+'_q');
+            if(qEl){
+              qEl.addEventListener('input', updateLabelRow);
+              qEl.addEventListener('change', updateLabelRow);
+              // Init immédiate
+              updateLabelRow();
+            }
+          }, 50);
+        })(lid, trLabel);
       })(lid);
     }
   }
@@ -1340,19 +1344,6 @@ function toggleConformite(){
     row.style.display = 'none';
     row.classList.remove('visible');
   }
-}
-
-function onEtagesChange(){
-  var val = document.getElementById('p_etages') ? document.getElementById('p_etages').value : '';
-  var nbChGroup = document.getElementById('nb_ch_group');
-  var nbCh = document.getElementById('nb_ch');
-  if(val === 'studio'){
-    if(nbCh) nbCh.value = 0;
-    if(nbChGroup) nbChGroup.style.display = 'none';
-  } else {
-    if(nbChGroup) nbChGroup.style.display = '';
-  }
-  buildAll();
 }
 
 function toggleTrappe(){
@@ -1780,7 +1771,7 @@ function recalc(){
   // Marge = PV - matiere brute - achat tableau - achat appareillage - cout reel MO - GTL achat - transport (PA = PV)
   var appSupPV = optApp==='oui' ? resApp.vente : 0;
   var appSupPA = optApp==='oui' ? resApp.achat : 0;
-  var marge = total - totMat - (optTab==='oui'?tabPa:0) - autoPAForMarge - appSupPA - coutReelMO - gtlAchat - trspVente - tabComPa;
+  var marge = total - totMat - (optTab==='oui'?tabPa:0) - autoPAForMarge - appSupPA - coutReelMO - gtlAchat - tabComPa;
   var margeP = total > 0 ? (marge/total*100).toFixed(1) : '0';
 
   function sv(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
@@ -1921,6 +1912,16 @@ function imprimerPDFClient(){
   if(phs) phs.textContent=(se?se.value+' m2':'')+' — '+(et&&et.selectedIndex>=0?et.options[et.selectedIndex].text:'');
   var phd=document.getElementById('ph_date'); if(phd) phd.textContent=new Date().toLocaleDateString('fr-FR');
 
+  // Afficher label_rows si quantite > 0
+  var labelRows=document.querySelectorAll('tr[id$="_label_row"]');
+  for(var i=0;i<labelRows.length;i++){
+    var rowId=labelRows[i].id;
+    var lid=rowId.replace('_label_row','');
+    var qEl=document.getElementById(lid+'_q');
+    var qty=qEl?(parseInt(qEl.value)||0):0;
+    if(qty>0) labelRows[i].style.display='table-row';
+  }
+
   // Masquer lignes avec qte=0 ET min=0
   var rows=document.querySelectorAll('.piece-body tbody tr');
   for(var i=0;i<rows.length;i++){
@@ -1928,6 +1929,7 @@ function imprimerPDFClient(){
     var inQty=rows[i].querySelector('input.iqty');
     var mn=inMin?(parseInt(inMin.value)||0):0;
     var qty=inQty?(parseInt(inQty.value)||0):0;
+    if(rows[i].id && rows[i].id.indexOf('_label_row')>=0) continue;
     if(qty===0){ rows[i].style.display='none'; rows[i].setAttribute('data-phc','1'); }
   }
 
@@ -2014,6 +2016,7 @@ function imprimerPDF(){
     var inQty=rows[i].querySelector('input.iqty');
     var mn=inMin?(parseInt(inMin.value)||0):0;
     var qty=inQty?(parseInt(inQty.value)||0):0;
+    if(rows[i].id && rows[i].id.indexOf('_label_row')>=0) continue;
     if(mn===0 && qty===0){ rows[i].style.display='none'; rows[i].setAttribute('data-ph','1'); }
   }
   setTimeout(function(){
@@ -2299,7 +2302,6 @@ _lignesTableau.push({id:'tab_0', label:'', qty:1, pa:0});
 renderLignesExtra('tableau');
 renderLignesExtra('appareillage');
 renderTransport();
-onEtagesChange();
 </script>
 
 <div class="modal-overlay" id="modal-etudes" onclick="fermerModal()">
@@ -2311,10 +2313,6 @@ onEtagesChange();
 </div>
 </body>
 </html>
-
-
-
-
 
 
 
