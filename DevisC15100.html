@@ -2,6 +2,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -2010,20 +2011,41 @@ function imprimerPDF(){
   var phs=document.getElementById('ph_surface_etage');
   if(phs) phs.textContent=(se?se.value+' m2':'')+' — '+(et&&et.selectedIndex>=0?et.options[et.selectedIndex].text:'');
   var phd=document.getElementById('ph_date'); if(phd) phd.textContent=new Date().toLocaleDateString('fr-FR');
+
+  // Masquer sections non actives
+  var secIds=['section-tableau','section-appareillage','section-gtl','section-pieuvre'];
+  var togIds=['opt_tab','opt_app','opt_gtl',null];
+  var hiddenSecs=[];
+  for(var s=0;s<secIds.length;s++){
+    var sec=document.getElementById(secIds[s]);
+    if(!sec) continue;
+    var tog=togIds[s]?document.getElementById(togIds[s]):null;
+    if(!tog || tog.value!=='oui'){
+      if(sec.style.display!=='none'){ sec.style.display='none'; hiddenSecs.push(sec); }
+    }
+  }
+
   var rows=document.querySelectorAll('.piece-body tbody tr');
   for(var i=0;i<rows.length;i++){
+    if(rows[i].id && rows[i].id.indexOf('_label_row')>=0) continue;
     var inMin=rows[i].querySelector('input.imin');
     var inQty=rows[i].querySelector('input.iqty');
     var mn=inMin?(parseInt(inMin.value)||0):0;
     var qty=inQty?(parseInt(inQty.value)||0):0;
-    if(rows[i].id && rows[i].id.indexOf('_label_row')>=0) continue;
     if(mn===0 && qty===0){ rows[i].style.display='none'; rows[i].setAttribute('data-ph','1'); }
   }
   setTimeout(function(){
     window.print();
     setTimeout(function(){
+      for(var s=0;s<hiddenSecs.length;s++) hiddenSecs[s].style.display='';
       var rs=document.querySelectorAll('[data-ph="1"]');
       for(var i=0;i<rs.length;i++){ rs[i].style.display=''; rs[i].removeAttribute('data-ph'); }
+      var lrs=document.querySelectorAll('tr[id$="_label_row"]');
+      for(var i=0;i<lrs.length;i++){
+        var lid2=lrs[i].id.replace('_label_row','');
+        var qEl2=document.getElementById(lid2+'_q');
+        lrs[i].style.display=(qEl2&&(parseInt(qEl2.value)||0)>0)?'table-row':'none';
+      }
     },500);
   },100);
 }
@@ -2313,6 +2335,11 @@ renderTransport();
 </div>
 </body>
 </html>
+
+
+
+
+
 
 
 
