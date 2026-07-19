@@ -2,7 +2,6 @@
 
 
 
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -283,6 +282,8 @@
     <input type="number" id="nb_cellier" class="pi-spin" value="0" min="0" max="3" step="1" style="width:58px;-webkit-appearance:auto;appearance:auto;-moz-appearance:auto" oninput="buildAll()" onchange="buildAll()">
     <span class="p-label">Nb Bureau</span>
     <input type="number" id="nb_bureau" class="pi-spin" value="0" min="0" max="3" step="1" style="width:58px;-webkit-appearance:auto;appearance:auto;-moz-appearance:auto" oninput="buildAll()" onchange="buildAll()">
+    <span class="p-label">Nb Couloir</span>
+    <input type="number" id="nb_couloir" class="pi-spin" value="1" min="0" max="5" step="1" style="width:58px;-webkit-appearance:auto;appearance:auto;-moz-appearance:auto" oninput="buildAll()" onchange="buildAll()">
     <span class="p-label">Tableau</span>
     <select id="opt_tab" style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:600;padding:3px 8px;outline:none" onchange="toggleTableau()">
       <option value="oui">Oui</option>
@@ -650,7 +651,8 @@ var PIECES = [
     {id:'vv',    label:'Va-et-vient (1.5mm2)',   min:1, nf:3, pf:'fil15', pi:'ict20', L:18},
     {id:'p20',   label:'Prise 16A 2P+T',         min:1, nf:3, pf:'fil25', pi:'ict20', L:15},
     {id:'sonn',  label:'Sonnerie (1.5mm2)',       min:0, nf:3, pf:'fil15', pi:'ict20', L:15},
-    {id:'therm', label:'Thermostat (1.5mm2)',     min:0, nf:3, pf:'fil15', pi:'ict20', L:20}
+    {id:'therm', label:'Thermostat (1.5mm2)',     min:0, nf:3, pf:'fil15', pi:'ict20', L:20},
+    {id:'bp',    label:'Simple allumage / BP',     min:0, nf:2, pf:'fil15', pi:'ict20', L:12}
   ]},
   {key:'garage', label:'Garage', lignes:[
     {id:'p20',   label:'Prises 16A 2P+T',        min:2, nf:3, pf:'fil25', pi:'ict20', L:13},
@@ -682,7 +684,8 @@ var PIECES = [
     {id:'dcl',   label:'DCL plafond',              min:1, nf:3, pf:'fil15',   pi:'ict25', L:10},
     {id:'bp',    label:'Simple allumage',          min:1, nf:2, pf:'fil15',   pi:'ict20', L:12},
     {id:'vv',    label:'Va-et-vient (1.5mm2)',     min:0, nf:3, pf:'fil15',   pi:'ict20', L:18},
-    {id:'vr',    label:'Volets roulants elec (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:12}
+    {id:'vr',    label:'Volets roulants elec (1.5mm2)', min:0, nf:3, pf:'fil15', pi:'ict20', L:12},
+    {id:'chauf', label:'Chauffage electrique',     min:0, nf:4, pf:'fil15', pi:'ict20', L:16}
   ]}
 ];
 
@@ -1558,15 +1561,20 @@ function buildAll(){
   // Pièces fixes conditionnelles
   var nbGarage  = parseInt(document.getElementById('nb_garage')  ? document.getElementById('nb_garage').value  : 1)||0;
   var nbCellier = parseInt(document.getElementById('nb_cellier') ? document.getElementById('nb_cellier').value : 0)||0;
-  var nbBureau  = parseInt(document.getElementById('nb_bureau')  ? document.getElementById('nb_bureau').value  : 0)||0;
+  var nbBureau   = parseInt(document.getElementById('nb_bureau')   ? document.getElementById('nb_bureau').value   : 0)||0;
+  var nbCouloir  = parseInt(document.getElementById('nb_couloir')  ? document.getElementById('nb_couloir').value  : 1)||0;
 
   for(var i=0; i<PIECES.length; i++){
     var key = PIECES[i].key;
-    if(key==='garage'  || key==='cellier' || key==='bureau') continue;
+    if(key==='garage'  || key==='cellier' || key==='bureau' || key==='couloir') continue;
     cont.appendChild(makePiece(key, PIECES[i].label, PIECES[i].lignes));
   }
   function findPiece(key){ for(var j=0;j<PIECES.length;j++){ if(PIECES[j].key===key) return PIECES[j]; } return null; }
   var pGarage=findPiece('garage'); var pCellier=findPiece('cellier'); var pBureau=findPiece('bureau');
+  // Couloirs multiples
+  var pCouloir=findPiece('couloir');
+  for(var i=0; i<nbCouloir; i++) if(pCouloir) cont.appendChild(makePiece('couloir'+(nbCouloir>1?i+1:''), nbCouloir>1?'Couloir '+(i+1):'Couloir / Degagement', pCouloir.lignes));
+
   for(var i=0; i<nbGarage;  i++) if(pGarage)  cont.appendChild(makePiece('garage' +(nbGarage >1?i+1:''), nbGarage >1?'Garage ' +(i+1):'Garage',  pGarage.lignes));
   for(var i=0; i<nbCellier; i++) if(pCellier) cont.appendChild(makePiece('cellier'+(nbCellier>1?i+1:''), nbCellier>1?'Cellier '+(i+1):'Cellier', pCellier.lignes));
   for(var i=0; i<nbBureau;  i++) if(pBureau)  cont.appendChild(makePiece('bureau' +(nbBureau >1?i+1:''), nbBureau >1?'Bureau ' +(i+1):'Bureau',  pBureau.lignes));
@@ -2178,7 +2186,7 @@ function exporterJSON(){
   var data = {};
 
   // -- Paramètres globaux --
-  var ids = ['p_client','p_surface','p_etages','nb_ch','nb_sdb','nb_wc','nb_garage','nb_cellier','nb_bureau',
+  var ids = ['p_client','p_surface','p_etages','nb_ch','nb_sdb','nb_wc','nb_garage','nb_cellier','nb_bureau','nb_couloir',
              'p_heure','p_coef','opt_tab','opt_app',
              't_fil15','t_fil25','t_fil6','t_ict20','t_ict25','t_ict40',
              't_grad3tv','t_u1000_25','t_u1000_15','t_coax',
@@ -2270,7 +2278,7 @@ function appliquerJSON(data){
   };
 
   // 2. Appliquer les params structurels (nb pièces, options, tarifs) → déclenchera buildAll
-  var structIds = ['nb_ch','nb_sdb','nb_wc','nb_garage','nb_cellier','nb_bureau',
+  var structIds = ['nb_ch','nb_sdb','nb_wc','nb_garage','nb_cellier','nb_bureau','nb_couloir',
                    'opt_tab','opt_app','opt_gtl','p_heure','p_coef',
                    't_fil15','t_fil25','t_fil6','t_ict20','t_ict25','t_ict40',
                    't_grad3tv','t_u1000_25','t_u1000_15','t_coax',
@@ -2335,6 +2343,11 @@ renderTransport();
 </div>
 </body>
 </html>
+
+
+
+
+
 
 
 
