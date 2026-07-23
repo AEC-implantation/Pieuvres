@@ -284,6 +284,10 @@
     <input type="number" id="nb_bureau" class="pi-spin" value="0" min="0" max="3" step="1" style="width:58px;-webkit-appearance:auto;appearance:auto;-moz-appearance:auto" oninput="buildAll()" onchange="buildAll()">
     <span class="p-label">Nb Couloir</span>
     <input type="number" id="nb_couloir" class="pi-spin" value="1" min="0" max="5" step="1" style="width:58px;-webkit-appearance:auto;appearance:auto;-moz-appearance:auto" oninput="buildAll()" onchange="buildAll()">
+    <span class="p-label">Nb Dressing</span>
+    <input type="number" id="nb_dressing" class="pi-spin" value="0" min="0" max="5" step="1" style="width:58px;-webkit-appearance:auto;appearance:auto;-moz-appearance:auto" oninput="buildAll()" onchange="buildAll()">
+    <span class="p-label">Nb Escalier</span>
+    <input type="number" id="nb_escalier" class="pi-spin" value="0" min="0" max="3" step="1" style="width:58px;-webkit-appearance:auto;appearance:auto;-moz-appearance:auto" oninput="buildAll()" onchange="buildAll()">
     <span class="p-label">Tableau</span>
     <select id="opt_tab" style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:600;padding:3px 8px;outline:none" onchange="toggleTableau()">
       <option value="oui">Oui</option>
@@ -675,6 +679,17 @@ var PIECES = [
     {id:'dcl',   label:'DCL plafond',              min:1, nf:3, pf:'fil15', pi:'ict25', L:8},
     {id:'bp',    label:'Simple allumage',          min:1, nf:2, pf:'fil15', pi:'ict20', L:12},
     {id:'lave',  label:'Prise specialisee 20A 2P+T', min:0, nf:3, pf:'fil25', pi:'ict20', L:20}
+  ]},
+  {key:'dressing', label:'Dressing', lignes:[
+    {id:'bp',    label:'Simple allumage / BP',     min:0, nf:2, pf:'fil15',   pi:'ict20', L:12},
+    {id:'dcl',   label:'DCL plafond',              min:0, nf:3, pf:'fil15',   pi:'ict25', L:10},
+    {id:'p20',   label:'Prises 16A 2P+T',          min:0, nf:3, pf:'fil25',   pi:'ict20', L:13}
+  ]},
+  {key:'escalier', label:'Escalier', lignes:[
+    {id:'vv',    label:'Va-et-vient (1.5mm2)',     min:0, nf:3, pf:'fil15',   pi:'ict20', L:18},
+    {id:'bp',    label:'Simple allumage / BP',     min:0, nf:2, pf:'fil15',   pi:'ict20', L:12},
+    {id:'dcl',   label:'DCL plafond',              min:0, nf:3, pf:'fil15',   pi:'ict25', L:10},
+    {id:'p20',   label:'Prises 16A 2P+T',          min:0, nf:3, pf:'fil25',   pi:'ict20', L:13}
   ]},
   {key:'bureau', label:'Bureau', lignes:[
     {id:'p20',   label:'Prises 16A 2P+T',         min:4, nf:3, pf:'fil25',   pi:'ict20', L:13},
@@ -1562,11 +1577,13 @@ function buildAll(){
   var nbGarage  = parseInt(document.getElementById('nb_garage')  ? document.getElementById('nb_garage').value  : 1)||0;
   var nbCellier = parseInt(document.getElementById('nb_cellier') ? document.getElementById('nb_cellier').value : 0)||0;
   var nbBureau   = parseInt(document.getElementById('nb_bureau')   ? document.getElementById('nb_bureau').value   : 0)||0;
-  var nbCouloir  = parseInt(document.getElementById('nb_couloir')  ? document.getElementById('nb_couloir').value  : 1)||0;
+  var nbCouloir   = parseInt(document.getElementById('nb_couloir')  ? document.getElementById('nb_couloir').value  : 1)||0;
+  var nbDressing  = parseInt(document.getElementById('nb_dressing') ? document.getElementById('nb_dressing').value : 0)||0;
+  var nbEscalier  = parseInt(document.getElementById('nb_escalier') ? document.getElementById('nb_escalier').value : 0)||0;
 
   for(var i=0; i<PIECES.length; i++){
     var key = PIECES[i].key;
-    if(key==='garage'  || key==='cellier' || key==='bureau' || key==='couloir') continue;
+    if(key==='garage'  || key==='cellier' || key==='bureau' || key==='couloir' || key==='dressing' || key==='escalier') continue;
     cont.appendChild(makePiece(key, PIECES[i].label, PIECES[i].lignes));
   }
   function findPiece(key){ for(var j=0;j<PIECES.length;j++){ if(PIECES[j].key===key) return PIECES[j]; } return null; }
@@ -1574,6 +1591,12 @@ function buildAll(){
   // Couloirs multiples
   var pCouloir=findPiece('couloir');
   for(var i=0; i<nbCouloir; i++) if(pCouloir) cont.appendChild(makePiece('couloir'+(nbCouloir>1?i+1:''), nbCouloir>1?'Couloir '+(i+1):'Couloir / Degagement', pCouloir.lignes));
+  // Dressing
+  var pDressing=findPiece('dressing');
+  for(var i=0; i<nbDressing; i++) if(pDressing) cont.appendChild(makePiece('dressing'+(nbDressing>1?i+1:''), nbDressing>1?'Dressing '+(i+1):'Dressing', pDressing.lignes));
+  // Escalier
+  var pEscalier=findPiece('escalier');
+  for(var i=0; i<nbEscalier; i++) if(pEscalier) cont.appendChild(makePiece('escalier'+(nbEscalier>1?i+1:''), nbEscalier>1?'Escalier '+(i+1):'Escalier', pEscalier.lignes));
 
   for(var i=0; i<nbGarage;  i++) if(pGarage)  cont.appendChild(makePiece('garage' +(nbGarage >1?i+1:''), nbGarage >1?'Garage ' +(i+1):'Garage',  pGarage.lignes));
   for(var i=0; i<nbCellier; i++) if(pCellier) cont.appendChild(makePiece('cellier'+(nbCellier>1?i+1:''), nbCellier>1?'Cellier '+(i+1):'Cellier', pCellier.lignes));
@@ -1911,6 +1934,32 @@ function calcTransport(){
   return totVente;
 }
 
+function hideEmptyPieces(){
+  var hidden=[];
+  var pieces=document.querySelectorAll('.piece');
+  for(var p=0;p<pieces.length;p++){
+    var allZero=true;
+    var qtys=pieces[p].querySelectorAll('input.iqty');
+    for(var i=0;i<qtys.length;i++){
+      if((parseInt(qtys[i].value)||0)>0){ allZero=false; break; }
+    }
+    if(allZero && pieces[p].style.display!=='none'){
+      pieces[p].style.display='none';
+      pieces[p].setAttribute('data-piece-hidden','1');
+      hidden.push(pieces[p]);
+    }
+  }
+  return hidden;
+}
+
+function restoreEmptyPieces(){
+  var rs=document.querySelectorAll('[data-piece-hidden="1"]');
+  for(var i=0;i<rs.length;i++){
+    rs[i].style.display='';
+    rs[i].removeAttribute('data-piece-hidden');
+  }
+}
+
 function imprimerPDFClient(){
   // Remplir entete PDF
   var cl=document.getElementById('p_client');
@@ -2007,6 +2056,7 @@ function imprimerPDFClient(){
       if(secAF) secAF.style.display='none';
       var rs=document.querySelectorAll('[data-phc="1"]');
       for(var i=0;i<rs.length;i++){ rs[i].style.display=''; rs[i].removeAttribute('data-phc'); }
+      restoreEmptyPieces();
     },500);
   },100);
 }
@@ -2019,6 +2069,9 @@ function imprimerPDF(){
   var phs=document.getElementById('ph_surface_etage');
   if(phs) phs.textContent=(se?se.value+' m2':'')+' — '+(et&&et.selectedIndex>=0?et.options[et.selectedIndex].text:'');
   var phd=document.getElementById('ph_date'); if(phd) phd.textContent=new Date().toLocaleDateString('fr-FR');
+
+  // Masquer pièces vides
+  hideEmptyPieces();
 
   // Masquer sections non actives
   var secIds=['section-tableau','section-appareillage','section-gtl','section-pieuvre'];
@@ -2046,6 +2099,7 @@ function imprimerPDF(){
     window.print();
     setTimeout(function(){
       for(var s=0;s<hiddenSecs.length;s++) hiddenSecs[s].style.display='';
+      restoreEmptyPieces();
       var rs=document.querySelectorAll('[data-ph="1"]');
       for(var i=0;i<rs.length;i++){ rs[i].style.display=''; rs[i].removeAttribute('data-ph'); }
       var lrs=document.querySelectorAll('tr[id$="_label_row"]');
@@ -2186,7 +2240,7 @@ function exporterJSON(){
   var data = {};
 
   // -- Paramètres globaux --
-  var ids = ['p_client','p_surface','p_etages','nb_ch','nb_sdb','nb_wc','nb_garage','nb_cellier','nb_bureau','nb_couloir',
+  var ids = ['p_client','p_surface','p_etages','nb_ch','nb_sdb','nb_wc','nb_garage','nb_cellier','nb_bureau','nb_couloir','nb_dressing','nb_escalier',
              'p_heure','p_coef','opt_tab','opt_app',
              't_fil15','t_fil25','t_fil6','t_ict20','t_ict25','t_ict40',
              't_grad3tv','t_u1000_25','t_u1000_15','t_coax',
@@ -2278,7 +2332,7 @@ function appliquerJSON(data){
   };
 
   // 2. Appliquer les params structurels (nb pièces, options, tarifs) → déclenchera buildAll
-  var structIds = ['nb_ch','nb_sdb','nb_wc','nb_garage','nb_cellier','nb_bureau','nb_couloir',
+  var structIds = ['nb_ch','nb_sdb','nb_wc','nb_garage','nb_cellier','nb_bureau','nb_couloir','nb_dressing','nb_escalier',
                    'opt_tab','opt_app','opt_gtl','p_heure','p_coef',
                    't_fil15','t_fil25','t_fil6','t_ict20','t_ict25','t_ict40',
                    't_grad3tv','t_u1000_25','t_u1000_15','t_coax',
@@ -2343,7 +2397,6 @@ renderTransport();
 </div>
 </body>
 </html>
-
 
 
 
