@@ -448,7 +448,7 @@
     <div class="extra-hdr"><span class="tag" style="background:#7B2D8B">P</span><h3>Prix Pieuvre (vente)</h3></div>
     <div class="extra-body">
       <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0">
-        <span style="font-size:.8rem;color:var(--muted)">Pieuvre électrique — Prix de vente</span>
+        <span style="font-size:.8rem;color:var(--muted)">Pieuvre électrique &nbsp;&nbsp; <span style="font-weight:700;color:var(--accent)">PRIX HT (€)</span></span>
         <span class="extra-vente" id="pv_pieuvre" style="font-size:1rem">—</span>
       </div>
     </div>
@@ -477,7 +477,7 @@
           <input type="number" id="tab_pa_inp" class="extra-num" value="0" min="0" step="0.01" oninput="recalc();" onchange="recalc();" style="width:100px">
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
-          <span style="font-size:.68rem;color:var(--muted)">PV (€)</span>
+          <span style="font-size:.68rem;font-weight:700;color:var(--accent)">PRIX HT (€)</span>
           <input type="number" id="tab_pv_inp" class="extra-num" value="0.00" min="0" step="1" oninput="this.dataset.userSet='1';recalc();" onchange="this.dataset.userSet='1';this.value=parseFloat(this.value).toFixed(2);recalc();" style="color:var(--accent2);width:100px">
         </div>
       </div>
@@ -491,7 +491,7 @@
         </div>
         <div></div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
-          <span style="font-size:.68rem;color:var(--muted)">PV (€)</span>
+          <span style="font-size:.68rem;color:var(--muted)">PRIX HT (€)</span>
           <input type="number" id="tabcom_pv_inp" class="extra-num" value="110" min="0" step="1" oninput="recalc();" onchange="recalc();" style="color:var(--accent2);width:100px">
         </div>
         <input type="number" id="tabcom_pa_inp" value="75" min="0" step="1" oninput="recalc();" onchange="recalc();" style="display:none">
@@ -510,7 +510,7 @@
           <input type="number" id="app_auto_pa_inp" class="extra-num" value="0" min="0" step="0.01" oninput="recalc();" onchange="recalc();" style="width:100px">
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
-          <span style="font-size:.68rem;color:var(--muted)">PV (€)</span>
+          <span style="font-size:.68rem;font-weight:700;color:var(--accent)">PRIX HT (€)</span>
           <input type="number" id="app_auto_pv" class="extra-num" value="0" min="0" step="0.01" oninput="this.dataset.userSet='1';recalcAppAuto();" onchange="this.dataset.userSet='1';recalcAppAuto();" style="color:var(--accent2);width:100px">
         </div>
         <div id="app_auto_pa" style="display:none">—</div>
@@ -519,7 +519,7 @@
         <div class="extra-lbl" style="text-align:left">Désignation</div>
         <div class="extra-lbl">Qté</div>
         <div class="extra-lbl">PA (€)</div>
-        <div class="extra-lbl">PV (€)</div>
+        <div class="extra-lbl">PRIX HT (€)</div>
         <div></div>
       </div>
       <div id="rows-appareillage"></div>
@@ -538,7 +538,7 @@
           <input type="number" id="gtl_pa_inp" class="extra-num" value="60" min="0" step="1" oninput="recalc();" onchange="recalc();" style="width:100px">
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
-          <span style="font-size:.68rem;color:var(--muted)">PV libre (€)</span>
+          <span style="font-size:.68rem;color:var(--accent);font-weight:700">PRIX HT (€)</span>
           <input type="number" id="gtl_pv_inp" class="extra-num" value="99" min="0" step="1" oninput="recalc();" onchange="recalc();" style="width:100px;color:var(--accent2)">
         </div>
       </div>
@@ -723,7 +723,8 @@ var LIGNES_DIRECTES = [
   {id:'split', label:'Alimentation split (3g2.5mm2)',                min:0, nf:3, pf:'fil25',    pi:'ict20', L:20},
   {id:'div6',  label:'Alimentation diverse 3g6mm2',                  min:0, nf:3, pf:'fil6',     pi:'ict25', L:20},
   {id:'div415',label:'Alimentation diverse 4g1.5mm2',                min:0, nf:4, pf:'fil15',    pi:'ict20', L:20},
-  {id:'vr_ld',  label:'Volets roulants (3g1.5mm2)',               min:0, nf:3, pf:'fil15',    pi:'ict20', L:12}
+  {id:'vr_ld',  label:'Volets roulants (3g1.5mm2)',               min:0, nf:3, pf:'fil15',    pi:'ict20', L:12},
+  {id:'rj_ld',  label:'Prise RJ45 / multimedia',                 min:0, nf:1, pf:'grad3tv',  pi:'ict20', L:16}
 ];
 
 var WC_LIGNES = [
@@ -870,6 +871,20 @@ function collectState(){
   for(var i=0;i<sels.length;i++){
     if(sels[i].id) state[sels[i].id]=sels[i].value;
   }
+  // Renseignements chantier (textarea + checkboxes)
+  var textarea = document.getElementById('ch_divers');
+  if(textarea) state['ch_divers'] = textarea.value;
+  var checks = ['ch_materiel','ch_port','ch_placo','ch_combles','ch_trappe'];
+  for(var i=0;i<checks.length;i++){
+    var chk = document.getElementById(checks[i]);
+    if(chk) state[checks[i]] = chk.checked ? '1' : '0';
+  }
+  // Label rows (désignations libres)
+  var labelInputs = document.querySelectorAll('tr[id$="_label_row"] input[type="text"]');
+  for(var i=0;i<labelInputs.length;i++){
+    if(labelInputs[i].id) state[labelInputs[i].id] = labelInputs[i].value;
+  }
+
   // Transport zones (ids dynamiques)
   ['z1','z2','z3','z4','z5'].forEach(function(z){
     ['q','pvforce'].forEach(function(f){
@@ -888,6 +903,18 @@ function applyState(state){
   if(state.opt_cellier) document.getElementById('opt_cellier') && (document.getElementById('opt_cellier').value=state.opt_cellier);
   if(state.opt_bureau)  document.getElementById('opt_bureau') && (document.getElementById('opt_bureau').value=state.opt_bureau);
   // Stocker pour restore dans buildAll
+  // Restaurer textarea et checkboxes
+  setTimeout(function(){
+    if(state.ch_divers !== undefined){
+      var ta=document.getElementById('ch_divers'); if(ta) ta.value=state.ch_divers;
+    }
+    var checks=['ch_materiel','ch_port','ch_placo','ch_combles','ch_trappe'];
+    for(var i=0;i<checks.length;i++){
+      if(state[checks[i]] !== undefined){
+        var chk=document.getElementById(checks[i]); if(chk) chk.checked=(state[checks[i]]==='1');
+      }
+    }
+  }, 300);
   _jsonRestoreValues = { pieces: {}, longueurs: {}, ld: {} };
   for(var id in state){
     if(id.match(/_q$/) && !id.startsWith('trsp_')) _jsonRestoreValues.pieces[id] = state[id];
@@ -1053,7 +1080,7 @@ function makePieceLignesDirectes(){
   tbl.appendChild(thead);
 
   var tbody = document.createElement('tbody');
-  var DIV_IDS = ['div15','div25','div6','div415','split','vr_ld'];
+  var DIV_IDS = ['div15','div25','div6','div415','split','vr_ld','rj_ld'];
   for(var i=0; i<LIGNES_DIRECTES.length; i++){
     var l = LIGNES_DIRECTES[i];
     var lid = 'ld_'+l.id;
@@ -1267,6 +1294,7 @@ var PA_APP = {
   chauf:2.85,
   ss:   2.85,
   sonn: 4.62,
+  rj_ld: 5.57,
   pdr:  8.63,
   clim: 0,
   vmc:  5.00,
@@ -2074,8 +2102,8 @@ function imprimerPDF(){
   hideEmptyPieces();
 
   // Masquer sections non actives
-  var secIds=['section-tableau','section-appareillage','section-gtl','section-pieuvre'];
-  var togIds=['opt_tab','opt_app','opt_gtl',null];
+  var secIds=['section-tableau','section-appareillage','section-gtl'];
+  var togIds=['opt_tab','opt_app','opt_gtl'];
   var hiddenSecs=[];
   for(var s=0;s<secIds.length;s++){
     var sec=document.getElementById(secIds[s]);
@@ -2397,6 +2425,11 @@ renderTransport();
 </div>
 </body>
 </html>
+
+
+
+
+
 
 
 
