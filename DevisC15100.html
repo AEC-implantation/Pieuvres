@@ -1,7 +1,6 @@
 
 
 
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -866,7 +865,9 @@ function collectState(){
   }
   var sels=document.querySelectorAll(
     '.params-bar select, .infos-bar select, #p_etages, #p_typo, ' +
-    '#opt_garage, #opt_cellier, #opt_bureau, #tab_type'
+    '#opt_garage, #opt_cellier, #opt_bureau, #tab_type, ' +
+    '#opt_tab, #opt_app, #opt_gtl, #opt_tabcom, #tabcom_choix, ' +
+    '#ch_type, #ch_placo, #ch_combles, #ch_trappe, #ch_chauffage, #ch_antenne, #ch_rj45'
   );
   for(var i=0;i<sels.length;i++){
     if(sels[i].id) state[sels[i].id]=sels[i].value;
@@ -896,41 +897,49 @@ function collectState(){
 }
 
 function applyState(state){
-  if(state.nb_ch)  document.getElementById('nb_ch').value=state.nb_ch;
-  if(state.nb_sdb) document.getElementById('nb_sdb').value=state.nb_sdb;
-  if(state.nb_wc)  document.getElementById('nb_wc').value=state.nb_wc;
-  if(state.opt_garage)  document.getElementById('opt_garage') && (document.getElementById('opt_garage').value=state.opt_garage);
-  if(state.opt_cellier) document.getElementById('opt_cellier') && (document.getElementById('opt_cellier').value=state.opt_cellier);
-  if(state.opt_bureau)  document.getElementById('opt_bureau') && (document.getElementById('opt_bureau').value=state.opt_bureau);
-  // Stocker pour restore dans buildAll
-  // Restaurer textarea et checkboxes
-  setTimeout(function(){
-    if(state.ch_divers !== undefined){
-      var ta=document.getElementById('ch_divers'); if(ta) ta.value=state.ch_divers;
+  // 1. Appliquer d'abord les compteurs qui contrôlent buildAll
+  var counters=['nb_ch','nb_sdb','nb_wc','nb_garage','nb_cellier','nb_bureau','nb_couloir','nb_dressing','nb_escalier'];
+  for(var i=0;i<counters.length;i++){
+    if(state[counters[i]]!==undefined){
+      var el=document.getElementById(counters[i]);
+      if(el) el.value=state[counters[i]];
     }
-    var checks=['ch_materiel','ch_port','ch_placo','ch_combles','ch_trappe'];
-    for(var i=0;i<checks.length;i++){
-      if(state[checks[i]] !== undefined){
-        var chk=document.getElementById(checks[i]); if(chk) chk.checked=(state[checks[i]]==='1');
-      }
+  }
+  // 2. Appliquer les selects Oui/Non qui influencent buildAll
+  var selects=['opt_garage','opt_cellier','opt_bureau','opt_tab','opt_app','opt_gtl','opt_tabcom','p_etages'];
+  for(var i=0;i<selects.length;i++){
+    if(state[selects[i]]!==undefined){
+      var el=document.getElementById(selects[i]);
+      if(el) el.value=state[selects[i]];
     }
-  }, 300);
+  }
+  // 3. Préparer les valeurs à restaurer après buildAll
   _jsonRestoreValues = { pieces: {}, longueurs: {}, ld: {} };
   for(var id in state){
-    if(id.match(/_q$/) && !id.startsWith('trsp_')) _jsonRestoreValues.pieces[id] = state[id];
+    if(id.match(/_q$/) && id.indexOf('trsp_')<0) _jsonRestoreValues.pieces[id] = state[id];
     else if(id.match(/_L$/)) _jsonRestoreValues.longueurs[id] = state[id];
-    else if(id.startsWith('ld_')) _jsonRestoreValues.ld[id] = state[id];
+    else if(id.indexOf('ld_')===0) _jsonRestoreValues.ld[id] = state[id];
   }
+  // 4. Reconstruire le DOM
   buildAll();
   renderTransport();
+  // 5. Restaurer tous les champs après un délai suffisant
   setTimeout(function(){
+    // Tous les inputs et selects
     for(var id in state){
+      if(id.charAt(0)==='_') continue; // ignorer _nom, _date
       var el=document.getElementById(id);
-      if(el && el.tagName==='INPUT') el.value=state[id];
-      if(el && el.tagName==='SELECT') el.value=state[id];
+      if(!el) continue;
+      if(el.tagName==='INPUT' && el.type==='checkbox') el.checked=(state[id]==='1');
+      else if(el.tagName==='INPUT') el.value=state[id];
+      else if(el.tagName==='SELECT') el.value=state[id];
+      else if(el.tagName==='TEXTAREA') el.value=state[id];
     }
+    // Forcer les toggles pour afficher/masquer les sections
+    toggleTableau(); toggleAppareillage(); toggleGTL(); toggleTabCom();
+    if(typeof applyMinsChantier==='function') applyMinsChantier();
     recalc();
-  }, 50);
+  }, 300);
 }
 
 function sauvegarderC15(){
@@ -1359,23 +1368,35 @@ function toggleGTL(){
   recalc();
 }
 
-function applyMinsChantier(){
+function applyMinsChantier(skipQty){
   var type = document.getElementById('ch_type') ? document.getElementById('ch_type').value : 'neuf';
+  var rj45sel = document.getElementById('ch_rj45');
+  var rj45ok = rj45sel ? (rj45sel.value === 'oui') : true;
   var neuf = type === 'neuf';
 
-  // RJ45 séjour : min 2 si neuf, 0 si rénovation
+  // RJ45 séjour
   var sejRj = document.getElementById('sejour_rj_min');
-  if(sejRj){ sejRj.value = neuf ? 2 : 0; }
-  var sejRjQ = document.getElementById('sejour_rj_q');
-  if(sejRjQ && neuf && (parseInt(sejRjQ.value)||0) < 2) sejRjQ.value = 2;
+  if(sejRj){ sejRj.value = (neuf && rj45ok) ? 2 : 0; }
+  if(!skipQty){
+    var sejRjQ = document.getElementById('sejour_rj_q');
+    if(sejRjQ){
+      if(!rj45ok) sejRjQ.value = 0;
+      else if(neuf && (parseInt(sejRjQ.value)||0) < 2) sejRjQ.value = 2;
+    }
+  }
 
-  // RJ45 chambres : min 1 si neuf, 0 si rénovation
+  // RJ45 chambres
   var nb = parseInt(document.getElementById('nb_ch') ? document.getElementById('nb_ch').value : 0) || 0;
   for(var i=1; i<=nb; i++){
     var minEl = document.getElementById('ch'+i+'_rj_min');
-    if(minEl){ minEl.value = neuf ? 1 : 0; }
-    var qEl = document.getElementById('ch'+i+'_rj_q');
-    if(qEl && neuf && (parseInt(qEl.value)||0) < 1) qEl.value = 1;
+    if(minEl){ minEl.value = (neuf && rj45ok) ? 1 : 0; }
+    if(!skipQty){
+      var qEl = document.getElementById('ch'+i+'_rj_q');
+      if(qEl){
+        if(!rj45ok) qEl.value = 0;
+        else if(neuf && (parseInt(qEl.value)||0) < 1) qEl.value = 1;
+      }
+    }
   }
   recalc();
 }
@@ -2274,7 +2295,10 @@ function exporterJSON(){
              't_grad3tv','t_u1000_25','t_u1000_15','t_coax',
              't_tab_studio','t_tab_t1','t_tab_t2','t_tab_t3','t_tab_t4','t_tab_t5',
              't_trsp_z1','t_trsp_z2','t_trsp_z3','t_trsp_z4','t_trsp_z5','t_gtl',
-             'tab_type','tab_pa_inp','tab_pv_inp','gtl_pa_inp','gtl_min'];
+             'tab_type','tab_pa_inp','tab_pv_inp','gtl_pa_inp','gtl_min',
+             'opt_gtl','opt_tabcom','tabcom_choix','p_coef_app',
+             'ch_type','ch_placo','ch_combles','ch_trappe','ch_chauffage','ch_antenne','ch_rj45',
+             'ch_hsp','ch_localisation_trappe'];
   data.params = {};
   ids.forEach(function(id){
     var el = document.getElementById(id);
@@ -2290,6 +2314,14 @@ function exporterJSON(){
   // -- Longueurs pièces --
   data.longueurs = {};
   document.querySelectorAll('input.ilng').forEach(function(el){ data.longueurs[el.id] = el.value; });
+
+  // -- Renseignements chantier --
+  var ta=document.getElementById('ch_divers'); if(ta) data.params['ch_divers']=ta.value;
+  var chkIds=['ch_materiel','ch_port'];
+  for(var ci=0;ci<chkIds.length;ci++){
+    var chk=document.getElementById(chkIds[ci]);
+    if(chk) data.params[chkIds[ci]]=chk.checked?'1':'0';
+  }
 
   // -- Transport zones --
   data.transport = {};
@@ -2360,51 +2392,72 @@ function appliquerJSON(data){
   };
 
   // 2. Appliquer les params structurels (nb pièces, options, tarifs) → déclenchera buildAll
-  var structIds = ['nb_ch','nb_sdb','nb_wc','nb_garage','nb_cellier','nb_bureau','nb_couloir','nb_dressing','nb_escalier',
-                   'opt_tab','opt_app','opt_gtl','p_heure','p_coef',
+  var structIds = ['nb_ch','nb_sdb','nb_wc','nb_garage','nb_cellier','nb_bureau',
+                   'nb_couloir','nb_dressing','nb_escalier',
+                   'p_etages','opt_tab','opt_app','opt_gtl','opt_tabcom','tabcom_choix',
+                   'p_heure','p_coef','p_coef_app',
                    't_fil15','t_fil25','t_fil6','t_ict20','t_ict25','t_ict40',
                    't_grad3tv','t_u1000_25','t_u1000_15','t_coax',
                    't_tab_studio','t_tab_t1','t_tab_t2','t_tab_t3','t_tab_t4','t_tab_t5',
                    't_trsp_z1','t_trsp_z2','t_trsp_z3','t_trsp_z4','t_trsp_z5','t_gtl'];
   if(data.params){
-    structIds.forEach(function(id){
-      var el=document.getElementById(id); if(!el) return;
-      if(data.params[id]!==undefined) el.value=data.params[id];
-    });
+    for(var i=0;i<structIds.length;i++){
+      var el=document.getElementById(structIds[i]); if(!el) continue;
+      if(data.params[structIds[i]]!==undefined) el.value=data.params[structIds[i]];
+    }
   }
 
   // 3. Rebuild — injecte _jsonRestoreValues pendant la construction
   buildAll();
   renderTransport();
 
-  // 4. Appliquer le reste (transport, appareillage, tableau, params non-struct)
-  if(data.params){
-    Object.keys(data.params).forEach(function(id){
-      if(id.slice(-8)==='__userSet') return;
-      var el=document.getElementById(id); if(!el) return;
-      el.value=data.params[id];
-      var us=data.params[id+'__userSet']; if(us && el.dataset) el.dataset.userSet=us;
-    });
-  }
-  if(data.transport) Object.keys(data.transport).forEach(function(id){ var el=document.getElementById(id); if(el) el.value=data.transport[id]; });
-  if(data.appareillage) Object.keys(data.appareillage).forEach(function(id){
-    if(id.slice(-8)==='__userSet') return;
-    var el=document.getElementById(id); if(!el) return;
-    el.value=data.appareillage[id];
-    var us=data.appareillage[id+'__userSet']; if(us && el.dataset) el.dataset.userSet=us;
-  });
-  if(data.tableau) Object.keys(data.tableau).forEach(function(id){
-    if(id.slice(-8)==='__userSet') return;
-    var el=document.getElementById(id); if(!el) return;
-    el.value=data.tableau[id];
-    var us=data.tableau[id+'__userSet']; if(us && el.dataset) el.dataset.userSet=us;
-  });
-  if(data.r_tot_inp){ var rt=document.getElementById('r_tot_inp'); if(rt){ rt.textContent=data.r_tot_inp.text; if(data.r_tot_inp.userSet && rt.dataset) rt.dataset.userSet=data.r_tot_inp.userSet; } }
-  if(typeof toggleGTL==='function') toggleGTL();
-  if(typeof toggleTableau==='function') toggleTableau();
-  if(typeof toggleAppareillage==='function') toggleAppareillage();
-  recalc();
-  alert('Étude chargée : ' + (data._client||'?') + ' (' + (data._date||'?') + ')');
+  // 4. Appliquer tous les params restants après rebuild
+  setTimeout(function(){
+    if(data.params){
+      for(var id in data.params){
+        if(id.indexOf('__userSet')>=0) continue;
+        var el=document.getElementById(id); if(!el) continue;
+        if(el.tagName==='INPUT' && el.type==='checkbox') el.checked=(data.params[id]==='1');
+        else el.value=data.params[id];
+        var us=data.params[id+'__userSet']; if(us && el.dataset) el.dataset.userSet=us;
+      }
+    }
+    if(data.transport){ for(var id in data.transport){ var el=document.getElementById(id); if(el) el.value=data.transport[id]; } }
+    if(data.appareillage){ for(var id in data.appareillage){
+      if(id.indexOf('__userSet')>=0) continue;
+      var el=document.getElementById(id); if(!el) continue;
+      el.value=data.appareillage[id];
+      var us=data.appareillage[id+'__userSet']; if(us && el.dataset) el.dataset.userSet=us;
+    }}
+    if(data.tableau){ for(var id in data.tableau){
+      if(id.indexOf('__userSet')>=0) continue;
+      var el=document.getElementById(id); if(!el) continue;
+      el.value=data.tableau[id];
+      var us=data.tableau[id+'__userSet']; if(us && el.dataset) el.dataset.userSet=us;
+    }}
+    if(data.r_tot_inp){ var rt=document.getElementById('r_tot_inp'); if(rt){ rt.textContent=data.r_tot_inp.text; if(data.r_tot_inp.userSet && rt.dataset) rt.dataset.userSet=data.r_tot_inp.userSet; } }
+    // Restaurer renseignements chantier
+    if(data.params && data.params.ch_divers){ var ta=document.getElementById('ch_divers'); if(ta) ta.value=data.params.ch_divers; }
+    // Appliquer les toggles
+    if(typeof toggleGTL==='function') toggleGTL();
+    if(typeof toggleTableau==='function') toggleTableau();
+    if(typeof toggleAppareillage==='function') toggleAppareillage();
+    if(typeof toggleTabCom==='function') toggleTabCom();
+    if(typeof applyMinsChantier==='function') applyMinsChantier(true);
+    // Forcer les quantités RJ45 depuis le JSON (priorité absolue)
+    if(data.pieces){
+      var rjIds=['sejour_rj_q','ch1_rj_q','ch2_rj_q','ch3_rj_q','ch4_rj_q','ch5_rj_q','ch6_rj_q'];
+      for(var ri=0;ri<rjIds.length;ri++){
+        if(data.pieces[rjIds[ri]]!==undefined){
+          var rjEl=document.getElementById(rjIds[ri]);
+          if(rjEl) rjEl.value=data.pieces[rjIds[ri]];
+        }
+      }
+    }
+    if(typeof calcTypeTableau==='function') calcTypeTableau();
+    recalc();
+    alert('Étude chargée : ' + (data._client||'?') + ' (' + (data._date||'?') + ')');
+  }, 300);
 }
 
 // ===================== FIN EXPORT / IMPORT JSON =====================
@@ -2425,20 +2478,6 @@ renderTransport();
 </div>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
