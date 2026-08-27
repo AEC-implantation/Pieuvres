@@ -1745,7 +1745,7 @@ function recalc(){
       var _hv=parseFloat(document.getElementById('p_heure')?document.getElementById('p_heure').value:45)||45;
       var totPV = tot*_cv + (q*5/60)*_hv;
       if(totEl) totEl.textContent = (isNaN(totPV)?0:totPV).toFixed(2)+' EUR';
-      blockTot += isNaN(tot)?0:tot;
+      blockTot += isNaN(totPV)?0:totPV;
       totPts += q;
       totMat += isNaN(tot)?0:tot;
       totTemps += q*5;
@@ -1801,7 +1801,7 @@ function recalc(){
     if(totEl) totEl.textContent = tot.toFixed(2)+' EUR';
     diversTot += tot;
     if(DIVERS[d].freeTotal){ totTransport += tot; }
-    else if(DIVERS[d].id==='bpav'){ totBpav += tot; }
+    else if(DIVERS[d].id==='bpav' || DIVERS[d].id==='prep' || DIVERS[d].id==='ech'){ totBpav += tot; }
     else { totMat += tot; }
     totPts += Math.ceil(q);
   }
@@ -1892,7 +1892,14 @@ function recalc(){
   // Marge = PV - matiere brute - achat tableau - achat appareillage - cout reel MO - GTL achat - transport (PA = PV)
   var appSupPV = optApp==='oui' ? resApp.vente : 0;
   var appSupPA = optApp==='oui' ? resApp.achat : 0;
-  var marge = total - totMat - (optTab==='oui'?tabPa:0) - autoPAForMarge - appSupPA - coutReelMO - gtlAchat - tabComPa;
+  // Coûts réels divers pour la marge
+  var qBpav = parseFloat(document.getElementById('divers_bpav_q') ? document.getElementById('divers_bpav_q').value : 0)||0;
+  var qPrep = parseFloat(document.getElementById('divers_prep_q') ? document.getElementById('divers_prep_q').value : 0)||0;
+  var qEch  = parseFloat(document.getElementById('divers_ech_q')  ? document.getElementById('divers_ech_q').value  : 0)||0;
+  var coutBpav = qBpav * 70;
+  var coutPrep = qPrep * 27;
+  var coutEch  = qEch  * 27;
+  var marge = total - totMat - coutBpav - coutPrep - coutEch - (optTab==='oui'?tabPa:0) - autoPAForMarge - appSupPA - coutReelMO - gtlAchat - tabComPa;
   var margeP = total > 0 ? (marge/total*100).toFixed(1) : '0';
 
   function sv(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
