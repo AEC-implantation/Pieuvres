@@ -383,7 +383,7 @@
         <!-- Prises RJ45 -->
         <div style="display:flex;flex-direction:column;gap:4px">
           <span style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Prises RJ45</span>
-          <select id="ch_rj45" style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:600;padding:4px 8px;outline:none">
+          <select id="ch_rj45" onchange="applyMinsChantier()" style="background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:600;padding:4px 8px;outline:none">
             <option value="oui">Oui</option>
             <option value="non">Non</option>
           </select>
@@ -513,6 +513,7 @@
           <input type="number" id="app_auto_pv" class="extra-num" value="0" min="0" step="0.01" oninput="this.dataset.userSet='1';recalcAppAuto();" onchange="this.dataset.userSet='1';recalcAppAuto();" style="color:var(--accent2);width:100px">
         </div>
         <div id="app_auto_pa" style="display:none">—</div>
+        <div id="app_debug" style="font-size:.7rem;color:#888;margin-top:4px"></div>
       </div>
       <div class="extra-header-row" style="display:grid;grid-template-columns:2fr 70px 100px 100px 24px;gap:8px;margin-bottom:4px">
         <div class="extra-lbl" style="text-align:left">Désignation</div>
@@ -694,6 +695,7 @@ var PIECES = [
     {id:'p20',   label:'Prises 16A 2P+T',         min:4, nf:3, pf:'fil25',   pi:'ict20', L:13},
     {id:'p20d',  label:'Prises 16A 2P+T double',  min:0, nf:3, pf:'fil25',   pi:'ict20', L:15},
     {id:'p20t',  label:'Prises 16A 2P+T triple',  min:0, nf:3, pf:'fil25',   pi:'ict20', L:15},
+    {id:'p20q',  label:'Prises 16A 2P+T quadruple', min:0, nf:3, pf:'fil25', pi:'ict20', L:15},
     {id:'rj',    label:'Prises RJ45 Grade 3TV',    min:0, nf:1, pf:'grad3tv', pi:'ict20', L:16},
     {id:'dcl',   label:'DCL plafond',              min:1, nf:3, pf:'fil15',   pi:'ict25', L:10},
     {id:'bp',    label:'Simple allumage',          min:1, nf:2, pf:'fil15',   pi:'ict20', L:12},
@@ -925,9 +927,9 @@ function applyState(state){
   renderTransport();
   // 5. Restaurer tous les champs après un délai suffisant
   setTimeout(function(){
-    // Tous les inputs et selects
+    // Tous les inputs, selects, textareas, checkboxes
     for(var id in state){
-      if(id.charAt(0)==='_') continue; // ignorer _nom, _date
+      if(id.charAt(0)==='_') continue;
       var el=document.getElementById(id);
       if(!el) continue;
       if(el.tagName==='INPUT' && el.type==='checkbox') el.checked=(state[id]==='1');
@@ -935,9 +937,21 @@ function applyState(state){
       else if(el.tagName==='SELECT') el.value=state[id];
       else if(el.tagName==='TEXTAREA') el.value=state[id];
     }
-    // Forcer les toggles pour afficher/masquer les sections
-    toggleTableau(); toggleAppareillage(); toggleGTL(); toggleTabCom();
-    if(typeof applyMinsChantier==='function') applyMinsChantier();
+    // Forcer les quantités RJ45 depuis state (priorité absolue)
+    var rjIds=['sejour_rj_q','ch1_rj_q','ch2_rj_q','ch3_rj_q','ch4_rj_q','ch5_rj_q','ch6_rj_q'];
+    for(var ri=0;ri<rjIds.length;ri++){
+      if(state[rjIds[ri]]!==undefined){
+        var rjEl=document.getElementById(rjIds[ri]);
+        if(rjEl) rjEl.value=state[rjIds[ri]];
+      }
+    }
+    // Appliquer les toggles dans le bon ordre
+    if(typeof toggleTableau==='function') toggleTableau();
+    if(typeof toggleAppareillage==='function') toggleAppareillage();
+    if(typeof toggleGTL==='function') toggleGTL();
+    if(typeof toggleTabCom==='function') toggleTabCom();
+    if(typeof applyMinsChantier==='function') applyMinsChantier(true);
+    if(typeof calcTypeTableau==='function') calcTypeTableau();
     recalc();
   }, 300);
 }
@@ -1502,8 +1516,8 @@ function recalcAppAuto(){
 }
 
 function calcAppareillageAuto(){
-  // Parcourir toutes les pièces et calculer PA total appareillage
   var totPA=0;
+  var totPts=0;
   var pieces=document.querySelectorAll('.piece');
   for(var p=0;p<pieces.length;p++){
     var rows=pieces[p].querySelectorAll('tbody tr');
@@ -1516,8 +1530,11 @@ function calcAppareillageAuto(){
       var lid=inQty.id.replace('_q','');
       var pa=getPAApp(lid);
       totPA+=pa*qty;
+      totPts+=qty;
     }
   }
+  var dbg=document.getElementById('app_debug');
+  if(dbg) dbg.textContent='PA auto: '+totPA.toFixed(2)+' sur '+totPts+' pts';
   return totPA;
 }
 
@@ -1692,7 +1709,7 @@ function buildAll(){
 }
 
 function recalc(){
-  var totPts=0, totMat=0, totTemps=0, totTransport=0;
+  var totPts=0, totMat=0, totTemps=0, totTransport=0, totBpav=0;
   var pieces = document.querySelectorAll('.piece');
 
   for(var p=0; p<pieces.length; p++){
@@ -1724,7 +1741,10 @@ function recalc(){
         pu = (pf*lineData.nf+pi)*lng;
       }
       var tot = pu*q;
-      if(totEl) totEl.textContent = (isNaN(tot)?0:tot).toFixed(2)+' EUR';
+      var _cv=parseFloat(document.getElementById('p_coef')?document.getElementById('p_coef').value:1.4)||1.4;
+      var _hv=parseFloat(document.getElementById('p_heure')?document.getElementById('p_heure').value:45)||45;
+      var totPV = tot*_cv + (q*5/60)*_hv;
+      if(totEl) totEl.textContent = (isNaN(totPV)?0:totPV).toFixed(2)+' EUR';
       blockTot += isNaN(tot)?0:tot;
       totPts += q;
       totMat += isNaN(tot)?0:tot;
@@ -1752,7 +1772,10 @@ function recalc(){
     var pf = gt(l.pf); var pi = gt(l.pi);
     var pu = (pf*l.nf+pi)*lng;
     var tot = pu*q;
-    if(totEl) totEl.textContent = tot.toFixed(2)+' EUR';
+    var _cv2=parseFloat(document.getElementById('p_coef')?document.getElementById('p_coef').value:1.4)||1.4;
+    var _hv2=parseFloat(document.getElementById('p_heure')?document.getElementById('p_heure').value:45)||45;
+    var totPVld = tot*_cv2 + (q*5/60)*_hv2;
+    if(totEl) totEl.textContent = totPVld.toFixed(2)+' EUR';
     ldTot  += tot;
     totMat += tot;
     totPts += q;
@@ -1778,6 +1801,7 @@ function recalc(){
     if(totEl) totEl.textContent = tot.toFixed(2)+' EUR';
     diversTot += tot;
     if(DIVERS[d].freeTotal){ totTransport += tot; }
+    else if(DIVERS[d].id==='bpav'){ totBpav += tot; }
     else { totMat += tot; }
     totPts += Math.ceil(q);
   }
@@ -1805,7 +1829,16 @@ function recalc(){
   var autoPVCalc = autoPA * coefApp;
   var elAPA=document.getElementById('app_auto_pa'); if(elAPA) elAPA.textContent=autoPA.toFixed(2)+' EUR';
   var elAPAInp=document.getElementById('app_auto_pa_inp');
-  if(elAPAInp && (!elAPAInp.dataset.userSet || elAPAInp.dataset.userSet==='0')) elAPAInp.value=autoPA.toFixed(2);
+  if(elAPAInp){
+    var prevPA = parseFloat(elAPAInp.dataset.prevPA)||0;
+    if(Math.abs(autoPA - prevPA) > 0.01){
+      // PA a changé → resetter userSet du PV pour forcer recalcul
+      var elAPVreset=document.getElementById('app_auto_pv');
+      if(elAPVreset && elAPVreset.dataset) elAPVreset.dataset.userSet='0';
+    }
+    elAPAInp.dataset.prevPA = autoPA.toFixed(4);
+    if(!elAPAInp.dataset.userSet || elAPAInp.dataset.userSet==='0') elAPAInp.value=autoPA.toFixed(2);
+  }
   var autoPAForMarge = elAPAInp ? (parseFloat(elAPAInp.value)||autoPA) : autoPA;
   var elAPV=document.getElementById('app_auto_pv');
   var autoPV = 0;
@@ -1823,13 +1856,11 @@ function recalc(){
   var tabPv = (optTab==='oui' && tabPvEl) ? (parseFloat(tabPvEl.value)||0) : 0;
   var resTab = {achat:tabPa, vente:tabPv};
   var resApp = calcExtra(_lignesAppareillage);
-  matFact += (optTab==='oui'?tabPv:0) + (optApp==='oui'?resApp.vente:0) + autoPV;
 
   // GTL
   var gtlRes = recalcGTL();
   var gtlAchat = gtlRes ? gtlRes.achat : 0;
   var gtlVente = gtlRes ? gtlRes.vente : 0;
-  matFact += gtlVente;
 
   // Tableau communication
   var optTabCom = document.getElementById('opt_tabcom') ? document.getElementById('opt_tabcom').value : 'non';
@@ -1839,14 +1870,23 @@ function recalc(){
     var tcPvEl = document.getElementById('tabcom_pv_inp');
     tabComPa = tcPaEl ? (parseFloat(tcPaEl.value)||0) : 0;
     tabComPv = tcPvEl ? (parseFloat(tcPvEl.value)||tabComPa*coefV) : tabComPa*coefV;
-    matFact += tabComPv;
   }
 
   // Transport zones
   var trspVente = calcTransport();
-  matFact += trspVente;
 
-  var total = matFact + moFact;
+  // P Pieuvre = matière câbles × coef + MO + boîtes (prix fixe) + transport
+  var pvPieuvre = (totMat * coefV) + moFact + totBpav + trspVente;
+
+  // Prix Total = P Pieuvre + T + A auto + A suppl + G + Tab com
+  var total = pvPieuvre
+    + (optTab==='oui' ? tabPv : 0)
+    + (optApp==='oui' ? (autoPV + resApp.vente) : 0)
+    + gtlVente
+    + tabComPv;
+
+  // matFact pour affichage récap (= total car MO déjà dans pvPieuvre)
+  var matFact = total;
   var heureAchat = parseFloat(document.getElementById("p_heure_achat") ? document.getElementById("p_heure_achat").value : 27) || 27;
   var coutReelMO = (totTemps/60) * heureAchat;
   // Marge = PV - matiere brute - achat tableau - achat appareillage - cout reel MO - GTL achat - transport (PA = PV)
@@ -1857,8 +1897,6 @@ function recalc(){
 
   function sv(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
   function fmt2(v){return v.toFixed(2)+' EUR';}
-  // Prix vente pieuvre = matière facturée AVANT tableau/appareillage/GTL/transport
-  var pvPieuvre = (totMat * coefV) + moFact + trspVente;
   var elPvP = document.getElementById('pv_pieuvre');
   if(elPvP) elPvP.textContent = pvPieuvre.toFixed(2)+' EUR';
   sv('r_tab_achat', fmt2(tabPa));
@@ -1877,7 +1915,7 @@ function recalc(){
 
   sv('r_pts',   totPts+' points');
   sv('r_mat',   totMat.toFixed(2)+' EUR');
-  sv('r_matf',  matFact.toFixed(2)+' EUR (x'+coefV.toFixed(2)+')');
+  sv('r_matf',  (totMat*coefV).toFixed(2)+' EUR (x'+coefV.toFixed(2)+')');
   sv('r_mo',    moFact.toFixed(2)+' EUR');
   sv('r_marge', marge.toFixed(2)+' EUR ('+margeP+'%)');
   sv('r_tot', total.toFixed(2)+' EUR');
