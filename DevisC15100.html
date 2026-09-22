@@ -138,6 +138,7 @@
     .extra-section { page-break-inside:avoid; margin-bottom:8px; }
     .extra-section:not([style*="display: none"]):not([style*="display:none"]) { display:block !important; }
     #app_debug { display:none !important; }
+    #print-header-repeat { display:block !important; page-break-before:always; margin-bottom:14px; }
     #tab_pa_inp, #tab-simple-row > div:first-of-type { display:none !important; }
     #app_auto_pa_inp { display:none !important; }
     #app-auto-row { grid-template-columns:1fr 110px !important; }
@@ -443,9 +444,24 @@
     </div>
   </div>
 
+  <!-- Entête répété pour PDF page finale -->
+  <div id="print-header-repeat" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px;border-bottom:2px solid #f0a500;padding-bottom:8px">
+      <div>
+        <div style="font-size:14pt;font-weight:bold;color:#f0a500;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.05em">⚡ CAUSSE PIEUVRES</div>
+        <div style="font-size:9pt;color:#555;margin-top:2px">Offre estimative — Dotations C15-100</div>
+      </div>
+      <div style="font-size:9pt;color:#1a2a3a;text-align:right">
+        <div><strong id="phr_client"></strong></div>
+        <div id="phr_surface_etage" style="color:#555"></div>
+        <div id="phr_date" style="color:#555"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Prix Pieuvre -->
   <div class="extra-section" id="section-pieuvre">
-    <div class="extra-hdr"><span class="tag" style="background:#7B2D8B">P</span><h3>Prix Pieuvre (vente)</h3></div>
+    <div class="extra-hdr"><span class="tag" style="background:#7B2D8B">P</span><h3>Prix Pieuvre</h3></div>
     <div class="extra-body">
       <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0">
         <span style="font-size:.8rem;color:var(--muted)">Pieuvre électrique &nbsp;&nbsp; <span style="font-weight:700;color:var(--accent)">PRIX HT (€)</span></span>
@@ -2064,6 +2080,11 @@ function imprimerPDFClient(){
   var phs=document.getElementById('ph_surface_etage');
   if(phs) phs.textContent=(se?se.value+' m2':'')+' — '+(et&&et.selectedIndex>=0?et.options[et.selectedIndex].text:'');
   var phd=document.getElementById('ph_date'); if(phd) phd.textContent=new Date().toLocaleDateString('fr-FR');
+  // Header répété page finale
+  var phrC=document.getElementById('phr_client'); if(phrC) phrC.textContent=cl?cl.value:'';
+  var phrS=document.getElementById('phr_surface_etage');
+  if(phrS) phrS.textContent=(se?se.value+' m2':'')+' — '+(et&&et.selectedIndex>=0?et.options[et.selectedIndex].text:'');
+  var phrD=document.getElementById('phr_date'); if(phrD) phrD.textContent=new Date().toLocaleDateString('fr-FR');
 
   // Afficher label_rows si quantite > 0
   var labelRows=document.querySelectorAll('tr[id$="_label_row"]');
@@ -2164,6 +2185,11 @@ function imprimerPDF(){
   var phs=document.getElementById('ph_surface_etage');
   if(phs) phs.textContent=(se?se.value+' m2':'')+' — '+(et&&et.selectedIndex>=0?et.options[et.selectedIndex].text:'');
   var phd=document.getElementById('ph_date'); if(phd) phd.textContent=new Date().toLocaleDateString('fr-FR');
+  // Header répété page finale
+  var phrC=document.getElementById('phr_client'); if(phrC) phrC.textContent=cl?cl.value:'';
+  var phrS=document.getElementById('phr_surface_etage');
+  if(phrS) phrS.textContent=(se?se.value+' m2':'')+' — '+(et&&et.selectedIndex>=0?et.options[et.selectedIndex].text:'');
+  var phrD=document.getElementById('phr_date'); if(phrD) phrD.textContent=new Date().toLocaleDateString('fr-FR');
 
   // Masquer pièces vides
   hideEmptyPieces();
