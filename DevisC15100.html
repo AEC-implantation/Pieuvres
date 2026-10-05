@@ -1290,10 +1290,12 @@ function recalcMarge(){
   var matEl  = document.getElementById('r_mat');
   var moEl   = document.getElementById('r_mo');
   var matfEl = document.getElementById('r_matf');
+  var trspEl = document.getElementById('r_trsp_vente');
 
   var mat    = matEl  ? (parseFloat(matEl.textContent)||0)  : 0;
   var mo     = moEl   ? (parseFloat(moEl.textContent)||0)   : 0;
   var matf   = matfEl ? (parseFloat(matfEl.textContent)||0) : 0;
+  var trsp   = trspEl ? (parseFloat(trspEl.textContent)||0) : 0;
 
   // Prix total = matière facturée + MO
   var newTotal = matf + mo;
@@ -1305,8 +1307,8 @@ function recalcMarge(){
   var tempsH = heureV > 0 ? mo/heureV : 0;
   var coutReelMO = tempsH * (heureV - 17);
 
-  // Marge = PV - matière brute - coût réel MO
-  var marge = newTotal - mat - coutReelMO;
+  // Marge = PV - matière brute - coût réel MO - transport (PA=PV)
+  var marge = newTotal - mat - coutReelMO - trsp;
   var margeP = newTotal > 0 ? (marge/newTotal*100).toFixed(1) : '0';
   var margeEl = document.getElementById('r_marge');
   if(margeEl) margeEl.textContent = marge.toFixed(2)+' EUR ('+margeP+'%)';
@@ -1522,7 +1524,9 @@ function recalcTTCCore(ht){
   var moH=mo>0&&heureV>0?mo/heureV:0;
   var heureAchat2=parseFloat(document.getElementById("p_heure_achat")?document.getElementById("p_heure_achat").value:27)||27;
   var coutMO=moH*heureAchat2;
-  var marge=ht-mat-tabA-appA-appS-coutMO;
+  var trspEl2=document.getElementById('r_trsp_vente');
+  var trsp2=trspEl2?(parseFloat(trspEl2.textContent)||0):0;
+  var marge=ht-mat-tabA-appA-appS-coutMO-trsp2;
   var margeP=ht>0?(marge/ht*100).toFixed(1):'0';
   var margeEl=document.getElementById('r_marge');
   if(margeEl) margeEl.textContent=marge.toFixed(2)+' EUR ('+margeP+'%)';
@@ -1832,6 +1836,7 @@ function recalc(){
     var vmcQ = parseInt(vmcEl.value)||0;
     var bpvmcQ = parseInt(bpvmcEl.value)||0;
     if(vmcQ > 0 && bpvmcQ < 1){ bpvmcEl.value = 1; }
+    if(vmcQ === 0){ bpvmcEl.value = 0; }
   }
 
   var coefV = coef();
@@ -1916,7 +1921,7 @@ function recalc(){
   var coutBpav = qBpav * 70;
   var coutPrep = qPrep * 27;
   var coutEch  = qEch  * 27;
-  var marge = total - totMat - coutBpav - coutPrep - coutEch - (optTab==='oui'?tabPa:0) - autoPAForMarge - appSupPA - coutReelMO - gtlAchat - tabComPa;
+  var marge = total - totMat - coutBpav - coutPrep - coutEch - (optTab==='oui'?tabPa:0) - autoPAForMarge - appSupPA - coutReelMO - gtlAchat - tabComPa - trspVente;
   var margeP = total > 0 ? (marge/total*100).toFixed(1) : '0';
 
   function sv(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
