@@ -446,21 +446,6 @@
     </div>
   </div>
 
-  <!-- Mentions légales PDF client -->
-  <div id="section-mentions-legales" style="display:none;margin-top:32px;padding-top:14px;border-top:1px solid #ccc">
-    <div style="font-size:7.5pt;color:#777;line-height:1.6;font-family:'IBM Plex Mono',monospace">
-      <strong style="color:#555;font-size:8pt">SARL CAUSSELEC</strong> —
-      Rue de la Tramontane et du Vent Grec — 34550 Bessan —
-      SIRET&nbsp;: 432&nbsp;080&nbsp;364&nbsp;00024 —
-      Capital social&nbsp;: 500&nbsp;000&nbsp;€ —
-      TVA intracommunautaire&nbsp;: FR84432080364 —
-      RCS Béziers —
-      Devis valable 30 jours à compter de sa date d'émission.
-      Tout acompte versé sera déduit du solde. En cas de litige, attribution de compétence au Tribunal de commerce de Béziers.
-      Pénalités de retard applicables au taux légal en vigueur majoré de 10 points.
-    </div>
-  </div>
-
   <!-- Entête répété pour PDF page finale -->
   <div id="print-header-repeat" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px;border-bottom:2px solid #f0a500;padding-bottom:8px">
@@ -613,6 +598,21 @@
     <div id="r_transport_mention" class="rrow rrow-mention" style="font-style:italic;font-size:.85rem;color:var(--text);justify-content:center;padding:8px 0;border-top:1px solid var(--border)"></div>
     <div id="r_conformite_row" class="rrow" style="padding:10px 16px;align-items:flex-start;gap:10px;display:none;border-top:1px solid rgba(255,100,100,.3);background:rgba(255,80,80,.05)">
       <span style="font-size:.82rem;color:#c0392b;font-style:italic">⚠ Attention, cette pieuvre est conforme à votre demande mais n'est pas conforme à la norme C15-100.</span>
+    </div>
+  </div>
+
+  <!-- Mentions légales -->
+  <div id="section-mentions-legales" style="margin-top:18px;padding:12px 16px;border-top:1px solid #ccc">
+    <div style="font-size:7.5pt;color:#777;line-height:1.7;font-family:'IBM Plex Mono',monospace">
+      <strong style="color:#555;font-size:8pt">SARL CAUSSELEC</strong> —
+      Rue de la Tramontane et du Vent Grec — 34550 Bessan —
+      SIRET&nbsp;: 432&nbsp;080&nbsp;364&nbsp;00024 —
+      Capital social&nbsp;: 500&nbsp;000&nbsp;€ —
+      TVA intracommunautaire&nbsp;: FR84432080364 —
+      RCS Béziers —
+      Devis valable 30 jours à compter de sa date d'émission.
+      Tout acompte versé sera déduit du solde. En cas de litige, attribution de compétence au Tribunal de commerce de Béziers.
+      Pénalités de retard applicables au taux légal en vigueur majoré de 10 points.
     </div>
   </div>
 
@@ -2240,9 +2240,6 @@ function imprimerPDFClient(){
   // Afficher section autres fournitures et chantier
   var secAF=document.getElementById('section-autres-fournitures');
   if(secAF) secAF.style.display='block';
-  var secML=document.getElementById('section-mentions-legales');
-  if(secML) secML.style.display='block';
-
   document.body.classList.add('pdf-client');
 
   setTimeout(function(){
@@ -2254,7 +2251,6 @@ function imprimerPDFClient(){
     setTimeout(function(){
       document.body.classList.remove('pdf-client');
       if(secAF) secAF.style.display='none';
-      if(secML) secML.style.display='none';
       var rs=document.querySelectorAll('[data-phc="1"]');
       for(var i=0;i<rs.length;i++){ rs[i].style.display=''; rs[i].removeAttribute('data-phc'); }
       restoreEmptyPieces();
