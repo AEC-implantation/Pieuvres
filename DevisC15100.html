@@ -1412,8 +1412,7 @@ function toggleTableau(){
   var val = document.getElementById('opt_tab') ? document.getElementById('opt_tab').value : 'oui';
   var secT = document.getElementById('section-tableau');
   if(secT) secT.style.display = val==='oui' ? 'block' : 'none';
-  var secP = document.getElementById('section-pieuvre');
-  if(secP) secP.style.display = val==='oui' ? 'block' : 'none';
+  // La section prix pieuvre reste toujours visible (independante du tableau)
   var ids=['r_tab_achat','r_tab_vente'];
   for(var i=0;i<ids.length;i++){
     var el=document.getElementById(ids[i]);
